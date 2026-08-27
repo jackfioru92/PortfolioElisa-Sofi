@@ -1,6 +1,7 @@
 # secreative.it
 
 Sito portfolio di **SE Creative** — Sofia Ercolani ed Elisa Zetti.
+Online su **https://secreative.it**
 One-page, italiano e inglese, con animazioni allo scroll.
 
 ---
@@ -100,7 +101,8 @@ Consiglio: MP4 H.264, lato lungo max 1080px, sotto i 10 MB l'uno.
 
 ```
 Debian 13 · nginx · 57.131.42.4
-config: /etc/nginx/sites-available/secreative
+config: /etc/nginx/sites-available/secreative        (sito)
+        /etc/nginx/sites-available/secreativestudio  (redirect)
 file:   /var/www/secreative
 ```
 
@@ -108,24 +110,40 @@ Convive con gli altri siti già presenti (spesax.it, altesiasuite.com,
 wikideas.it, parlamento.wikideas.it) senza interferire: è un blocco
 `server` a sé, selezionato per `server_name`.
 
-### HTTPS
+### HTTPS — attivo dal 27/08/2026
 
-Il certificato si ottiene **dopo** che il dominio punta al server:
+Certificati Let's Encrypt su entrambi i domini, scadenza **25/11/2026**,
+rinnovo automatico già impostato da certbot.
 
 ```bash
-sudo certbot --nginx -d secreative.it -d www.secreative.it
+sudo certbot certificates          # stato
+sudo certbot renew --dry-run       # prova di rinnovo
 ```
 
-Certbot riscrive da solo il file di configurazione aggiungendo il blocco
-443 e il redirect da HTTP, come ha già fatto per gli altri domini.
-Il rinnovo è automatico.
+### I due domini
+
+| Dominio | Ruolo |
+|---|---|
+| **secreative.it** | **principale** — è quello dichiarato come canonical nell'HTML e nella sitemap |
+| secreativestudio.it | secondario: `301` verso il principale, conservando il percorso |
+
+Il redirect serve a non avere lo stesso contenuto su due indirizzi: senza,
+Google lo tratterebbe come duplicato e dividerebbe il posizionamento fra i due.
+
+Per **invertire** i ruoli (rendere principale `secreativestudio.it`):
+
+1. `astro.config.mjs` → cambiare `site`
+2. `src/layouts/Base.astro` → cambiare la costante `site`
+3. `./deploy.sh`
+4. sul server, scambiare i due file in `/etc/nginx/sites-available/`
+   (`secreative` e `secreativestudio`), poi `sudo nginx -t && sudo systemctl reload nginx`
 
 ---
 
 ## Da fare
 
-- [ ] DNS su Register.it: record **A** di `@` e `www` → `57.131.42.4`
-- [ ] `certbot` per HTTPS (dopo il DNS)
+- [x] ~~DNS su Register.it~~ — fatto 27/08/2026, entrambi i domini
+- [x] ~~`certbot` per HTTPS~~ — fatto 27/08/2026, scadenza 25/11, rinnovo automatico
 - [ ] Caricare i video veri
 - [ ] Far rileggere i testi dei progetti a Sofia ed Elisa
 - [ ] Numeri della sezione «Studio» (30+ progetti, 5+ anni, 10+ settori): sono
