@@ -1,0 +1,331 @@
+---
+import { useTranslations, sections, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const other: Lang = lang === 'it' ? 'en' : 'it';
+const otherHref = other === 'it' ? '/' : '/en/';
+
+// ogni sezione dura fino all'inizio della successiva: serve per evidenziarla
+const items = sections.map((s, idx) => ({
+  label: t(s.key as any),
+  slide: s.slide,
+  end: idx + 1 < sections.length ? sections[idx + 1].slide - 1 : 36,
+}));
+---
+
+<header class="nav" id="nav">
+  <div class="in">
+    <a class="brand" href={lang === 'it' ? '/#1' : '/en/#1'} data-sec="1" data-sec-end="3">
+      <img src="/img/logo/se-creative.webp" alt="SE Creative" width="120" height="120" />
+    </a>
+
+    <nav class="secs" aria-label={t('nav.menu')}>
+      {
+        items.map((s) => (
+          <a href={`#${s.slide}`} data-sec={s.slide} data-sec-end={s.end}>
+            {s.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="right">
+      <button class="icon" id="fs" title={t('ui.fullscreen')} aria-label={t('ui.fullscreen')}>
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+          <path
+            d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+
+      <div class="lang" role="group" aria-label={t('nav.lang')}>
+        <span class="on">{lang.toUpperCase()}</span>
+        <a href={otherHref} hreflang={other} rel="alternate">{other.toUpperCase()}</a>
+      </div>
+
+      <button class="burger" aria-expanded="false" aria-controls="msecs" aria-label={t('nav.menu')}>
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="msecs" id="msecs" hidden>
+  <nav aria-label={t('nav.menu')}>
+    {
+      items.map((s, i) => (
+        <a href={`#${s.slide}`} data-sec={s.slide} data-sec-end={s.end} style={`--i:${i}`}>
+          <b>{String(s.slide).padStart(2, '0')}</b> {s.label}
+        </a>
+      ))
+    }
+  </nav>
+  <a class="mlang" href={otherHref} hreflang={other}>
+    {other === 'it' ? 'Passa all’italiano' : 'Switch to English'}
+  </a>
+</div>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('.burger')!;
+  const panel = document.getElementById('msecs')!;
+  const nav = document.getElementById('nav')!;
+
+  const setOpen = (open: boolean) => {
+    burger.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+    burger.classList.toggle('is-open', open);
+  };
+  burger.addEventListener('click', () => setOpen(burger.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('deck:jump', () => setOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') setOpen(false);
+  });
+
+  /* la barra si nasconde da sola: la slide deve restare protagonista */
+  let hideT: number;
+  const wake = () => {
+    nav.classList.remove('idle');
+    clearTimeout(hideT);
+    hideT = window.setTimeout(() => {
+      if (burger.getAttribute('aria-expanded') !== 'true') nav.classList.add('idle');
+    }, 2600);
+  };
+  ['pointermove', 'keydown', 'touchstart'].forEach((ev) =>
+    document.addEventListener(ev, wake, { passive: true })
+  );
+  wake();
+</script>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+    transition: opacity 0.45s ease, translate 0.45s ease;
+  }
+  .nav.idle {
+    opacity: 0;
+    translate: 0 -8px;
+    pointer-events: none;
+  }
+
+  .in {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.7rem clamp(0.9rem, 2.5vw, 1.75rem);
+  }
+
+  .brand {
+    flex: none;
+    line-height: 0;
+  }
+  .brand img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+  }
+
+  .secs {
+    display: flex;
+    gap: 1.35rem;
+    margin-right: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .secs::-webkit-scrollbar {
+    display: none;
+  }
+  .secs a {
+    position: relative;
+    white-space: nowrap;
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.62);
+    text-decoration: none;
+    padding-block: 0.35rem;
+    transition: color 0.3s;
+  }
+  .secs a:hover {
+    color: #fff;
+  }
+  .secs a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.5px;
+    background: var(--yellow, #ffe212);
+    scale: 0 1;
+    transform-origin: 0 50%;
+    transition: scale 0.35s ease;
+  }
+  .secs a.on {
+    color: #fff;
+  }
+  .secs a.on::after {
+    scale: 1 1;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: none;
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+  }
+  .icon:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .lang {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    overflow: hidden;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .lang > * {
+    padding: 0.34rem 0.6rem;
+    text-decoration: none;
+  }
+  .lang .on {
+    background: var(--yellow, #ffe212);
+    color: #0a0a0a;
+  }
+  .lang a {
+    color: rgba(255, 255, 255, 0.7);
+    transition: background 0.3s, color 0.3s;
+  }
+  .lang a:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+
+  .burger {
+    display: none;
+    position: relative;
+    width: 34px;
+    height: 34px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .burger span {
+    position: absolute;
+    left: 7px;
+    width: 20px;
+    height: 1.5px;
+    background: #fff;
+    transition: transform 0.35s ease;
+  }
+  .burger span:nth-child(1) {
+    top: 14px;
+  }
+  .burger span:nth-child(2) {
+    top: 20px;
+  }
+  .burger.is-open span:nth-child(1) {
+    transform: translateY(3px) rotate(45deg);
+  }
+  .burger.is-open span:nth-child(2) {
+    transform: translateY(-3px) rotate(-45deg);
+  }
+
+  .msecs[hidden] {
+    display: none;
+  }
+  .msecs {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    background: rgba(6, 6, 6, 0.96);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.75rem;
+    padding: 4.5rem 1.5rem 2rem;
+  }
+  .msecs nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    overflow-y: auto;
+  }
+  .msecs nav a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: clamp(1.35rem, 6.5vw, 2rem);
+    padding-block: 0.3rem;
+    animation: rise 0.5s var(--i, 0) backwards;
+    animation-delay: calc(var(--i) * 0.045s);
+  }
+  .msecs nav a b {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--yellow, #ffe212);
+    font-variant-numeric: tabular-nums;
+  }
+  .msecs nav a.on {
+    color: var(--yellow, #ffe212);
+  }
+  .mlang {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    padding-top: 1.25rem;
+    text-decoration: none;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .secs {
+      display: none;
+    }
+    .burger {
+      display: block;
+    }
+    .brand {
+      margin-right: auto;
+    }
+  }
+  @media (min-width: 861px) {
+    .msecs {
+      display: none !important;
+    }
+  }
+</style>

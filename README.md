@@ -1,21 +1,64 @@
-# secreative.it
+# secreative.it — Portfolio 2026
 
-Sito portfolio di **SE Creative** — Sofia Ercolani ed Elisa Zetti.
+Il portfolio Keynote di **SE Creative** (Elisa Zetti e Sofia Ercolani) riprodotto
+sul web: **36 schermate intere che avanzano al click**, esattamente come la
+presentazione originale.
+
 Online su **https://secreative.it**
-One-page, italiano e inglese, con animazioni allo scroll.
 
 ---
 
-## Come è fatto
+## L'idea
 
-| Pezzo | Cosa fa |
+Il design non è stato reinterpretato: le slide sono **le slide del Keynote**,
+esportate una per una. L'unica aggiunta è la barra in alto — sezioni e lingua —
+che sparisce da sola dopo qualche secondo per non rubare spazio.
+
+| | |
 |---|---|
-| **Astro 7** | Genera HTML statico. Nessun processo gira sul server: nginx serve dei file, come per `spesax.it` |
-| **GSAP + ScrollTrigger** | Animazioni allo scroll (rivelazioni, titoli riga per riga, parallasse) |
-| **Lenis** | Scorrimento inerziale |
-| **@fontsource** | Font *self-hosted* (Bodoni Moda + Manrope). Nessuna chiamata a Google Fonts: più veloce e senza problemi GDPR |
+| **Slide** | 36, esportate da Keynote a 2560px e servite in WebP a 2200px |
+| **Video** | 21, estratti dal file `.key` originale (780 MB → 125 MB) |
+| **Peso pagina** | ~50 KB di HTML + la slide che stai guardando |
 
-Il sito pesa **4,9 MB in tutto**, di cui 4,4 MB di immagini. L'HTML è 25 KB.
+---
+
+## Come si sfoglia
+
+| Azione | Comando |
+|---|---|
+| Avanti | click a destra · `→` · `spazio` · rotellina giù · swipe |
+| Indietro | click nel quarto sinistro · `←` · rotellina su · swipe |
+| Prima / ultima | `Home` / `End` |
+| Schermo intero | `F` o l'icona nella barra |
+| Andare a una slide | click sui trattini in basso, o le sezioni nella barra |
+| Link diretto | `secreative.it/#24` apre la slide 24 |
+
+Le sezioni nella barra riportano alla slide da cui quella parte comincia, e si
+illuminano da sole mentre si sfoglia.
+
+---
+
+## I video
+
+Le slide 24, 26, 28, 30, 32, 34 e 35 mostrano tre filmati affiancati. Su ognuno
+c'è un **tasto play**: il video si apre a schermo e parte **solo quando lo premi**.
+Nessun filmato parte da solo. Cambiando slide, l'eventuale video in corso si ferma.
+
+L'abbinamento fra colonne e file è in cima a `src/components/Deck.astro`
+(`VIDEO_SLIDES`): è stato ricavato confrontando i fotogrammi di ogni filmato con
+le tre colonne di ogni slide.
+
+---
+
+## Le due lingue
+
+Lo **switch IT / EN** cambia l'interfaccia: nomi delle sezioni, comandi, titolo
+della pagina e descrizione per Google.
+
+> ⚠️ **Le slide restano identiche** nelle due lingue: sono le immagini del
+> Keynote, che è uno solo. Per avere il portfolio anche in inglese servirebbe una
+> seconda versione del Keynote; a quel punto basta esportarla in
+> `public/img/deck-en/` e cambiare il percorso in `Deck.astro`.
 
 ---
 
@@ -36,67 +79,42 @@ npm run build    # genera dist/
 
 ```
 src/
-  i18n/ui.ts            ← TUTTI i testi, italiano e inglese
-  layouts/Base.astro    ← head, SEO, GSAP, Lenis
+  i18n/ui.ts             ← testi dell'interfaccia + elenco delle sezioni
   components/
-    Nav.astro           ← barra + selettore lingua + menu mobile
-    Hero.astro          ← schermata iniziale
-    Work.astro          ← i 6 progetti
-    Services.astro      ← i 6 servizi
-    About.astro         ← chi siamo
-    Reels.astro         ← video verticali
-    Contact.astro       ← contatti
+    Deck.astro           ← il visualizzatore: slide, comandi, video
+    DeckNav.astro        ← barra in alto: sezioni, lingua, schermo intero
+  layouts/Base.astro     ← head, SEO, dati per i motori di ricerca
   pages/
-    index.astro         ← versione italiana  (/)
-    en/index.astro      ← versione inglese   (/en/)
-public/img/
-  slides/   ← composizioni prese dal portfolio
-  reels/    ← fotogrammi verticali
-  brands/   ← loghi clienti (fondo reso trasparente)
-  logo/     ← marchio SE Creative + favicon
+    index.astro          ← italiano  (/)
+    en/index.astro       ← inglese   (/en/)
+public/
+  img/deck/              ← s01…s36 (piene) e s01@sm… (leggere, per il precarico)
+  video/                 ← v733…v830.mp4
+  img/logo/              ← marchio e favicon
 ```
 
-### Cambiare un testo
+### Cambiare le sezioni della barra
 
-Si tocca **solo** `src/i18n/ui.ts`: c'è la voce italiana e quella inglese
-una accanto all'altra. Poi `./deploy.sh`.
+In `src/i18n/ui.ts`, in fondo:
 
----
-
-## Le due lingue
-
-Non ci sono didascalie doppie in pagina: sono **due pagine separate**,
-generate dallo stesso dizionario.
-
-- `/` italiano
-- `/en/` inglese
-- il selettore **IT / EN** in alto passa dall'una all'altra
-
-Google le indicizza entrambe (`hreflang` già impostato).
-
----
-
-## I video
-
-Le card della sezione *Video Production* mostrano oggi il **fotogramma**
-preso dal portfolio, con l'etichetta «video in arrivo».
-
-**Non partono da soli**: si guardano solo premendo play — così è stato chiesto.
-
-### Per attivarli
-
-1. Mettere i file MP4 in `public/video/` (es. `borgobrufa.mp4`)
-2. In `src/components/Reels.astro`, nell'elenco in cima, sostituire `video: null`
-   con il percorso:
-
-```js
-{ key: 'reels.b23', poster: '...', logo: '...', video: '/video/borgobrufa.mp4' },
+```ts
+export const sections = [
+  { key: 'sec.start', slide: 1 },
+  { key: 'sec.about', slide: 4 },
+];
 ```
 
+Il numero è la slide da cui la sezione riparte. I nomi si traducono più sopra,
+nello stesso file.
+
+### Rifare le slide dopo una modifica al Keynote
+
+1. Da Keynote: *File → Esporta → PDF*, qualità migliore
+2. Renderizzare le pagine a 2560px e convertirle in WebP nelle due misure
+   (`s##.webp` a 2200px, `s##@sm.webp` a 1100px), in `public/img/deck/`
 3. `./deploy.sh`
 
-Comparirà il tasto play e il video si aprirà a schermo intero.
-Consiglio: MP4 H.264, lato lungo max 1080px, sotto i 10 MB l'uno.
+Se cambia il **numero** di slide, aggiornare `TOTAL_SLIDES` in `src/i18n/ui.ts`.
 
 ---
 
@@ -110,47 +128,26 @@ file:   /var/www/secreative
 ```
 
 I dati di accesso stanno in `deploy.env`, che **non** è pubblicato su GitHub.
-Alla prima volta: `cp deploy.env.example deploy.env` e compilalo.
 
-Convive con gli altri siti già presenti (spesax.it, altesiasuite.com,
-wikideas.it, parlamento.wikideas.it) senza interferire: è un blocco
-`server` a sé, selezionato per `server_name`.
+Il sito è statico: nginx serve dei file, non gira nessun processo. Convive con
+gli altri siti già presenti sulla macchina senza interferire.
 
-### HTTPS — attivo dal 27/08/2026
+### HTTPS
 
-Certificati Let's Encrypt su entrambi i domini, scadenza **25/11/2026**,
-rinnovo automatico già impostato da certbot.
-
-```bash
-sudo certbot certificates          # stato
-sudo certbot renew --dry-run       # prova di rinnovo
-```
+Certificati Let's Encrypt su entrambi i domini, scadenza **25/11/2026**, rinnovo
+automatico.
 
 ### I due domini
 
 | Dominio | Ruolo |
 |---|---|
-| **secreative.it** | **principale** — è quello dichiarato come canonical nell'HTML e nella sitemap |
-| secreativestudio.it | secondario: `301` verso il principale, conservando il percorso |
-
-Il redirect serve a non avere lo stesso contenuto su due indirizzi: senza,
-Google lo tratterebbe come duplicato e dividerebbe il posizionamento fra i due.
-
-Per **invertire** i ruoli (rendere principale `secreativestudio.it`):
-
-1. `astro.config.mjs` → cambiare `site`
-2. `src/layouts/Base.astro` → cambiare la costante `site`
-3. `./deploy.sh`
-4. sul server, scambiare i due file in `/etc/nginx/sites-available/`
-   (`secreative` e `secreativestudio`), poi `sudo nginx -t && sudo systemctl reload nginx`
+| **secreative.it** | **principale** |
+| secreativestudio.it | `301` verso il principale, conservando il percorso |
 
 ---
 
 ## Da fare
 
-- [x] ~~DNS su Register.it~~ — fatto 27/08/2026, entrambi i domini
-- [x] ~~`certbot` per HTTPS~~ — fatto 27/08/2026, scadenza 25/11, rinnovo automatico
-- [ ] Caricare i video veri
-- [ ] Far rileggere i testi dei progetti a Sofia ed Elisa
-- [ ] Numeri della sezione «Studio» (30+ progetti, 5+ anni, 10+ settori): sono
-      stime messe come segnaposto, vanno confermate
+- [ ] Far controllare a Elisa e Sofia i punti in cui le sezioni "ripartono"
+      (slide 1, 4, 5, 6, 9, 12, 20, 22, 36)
+- [ ] Decidere se serve una versione inglese delle slide

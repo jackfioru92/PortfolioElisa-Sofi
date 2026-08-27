@@ -1,0 +1,543 @@
+---
+import { useTranslations, sections, TOTAL_SLIDES, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+/**
+ * Le slide della sezione video mostrano tre filmati affiancati (un terzo
+ * ciascuno). I file sono quelli estratti dal Keynote originale; l'ordine
+ * delle colonne è stato ricavato confrontando i fotogrammi con la slide.
+ * Nessun video parte da solo: si apre premendo play.
+ */
+const VIDEO_SLIDES: Record<number, string[]> = {
+  24: ['v736', 'v739', 'v742'], // Borgobrufa Spa Resort
+  26: ['v792', 'v795', 'v798'], // FlexorLab
+  28: ['v750', 'v755', 'v758'], // Forma Boutique Suite
+  30: ['v733', 'v765', 'v768'], // Albaia
+  32: ['v778', 'v783', 'v786'], // Okkio
+  34: ['v806', 'v809', 'v812'], // Fisio Group
+  35: ['v830', 'v822', 'v819'], // Cantine Aperte · Nestor Calcio · social
+};
+
+const slides = Array.from({ length: TOTAL_SLIDES }, (_, i) => {
+  const n = String(i + 1).padStart(2, '0');
+  return {
+    n: i + 1,
+    src: `/img/deck/s${n}.webp`,
+    small: `/img/deck/s${n}@sm.webp`,
+    videos: VIDEO_SLIDES[i + 1] ?? null,
+  };
+});
+
+// dove comincia ogni sezione, per evidenziarla nella navbar
+const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
+---
+
+<div class="deck" id="deck" data-total={TOTAL_SLIDES}>
+  <div class="stage" id="stage">
+    {
+      slides.map((s, i) => (
+        <figure class="slide" data-n={s.n} aria-hidden={i === 0 ? 'false' : 'true'}>
+          <div class="holder">
+            <img
+              src={i === 0 ? s.src : s.small}
+              data-full={s.src}
+              alt={`${t('ui.slide')} ${s.n}`}
+              width="2200"
+              height="1237"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+              decoding="async"
+            />
+
+            {s.videos &&
+              s.videos.map((v, k) => (
+                <button
+                  class="vplay"
+                  style={`--col:${k}`}
+                  data-video={`/video/${v}.mp4`}
+                  aria-label={`${t('ui.play')} ${k + 1}`}
+                >
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+                  </svg>
+                </button>
+              ))}
+          </div>
+        </figure>
+      ))
+    }
+  </div>
+
+  {/* zone di click: sinistra indietro, resto avanti */}
+  <button class="zone zone-prev" id="prev" aria-label={t('ui.prev')}></button>
+  <button class="zone zone-next" id="next" aria-label={t('ui.next')}></button>
+
+  <div class="edge edge-l" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="26" height="26"
+      ><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round"></path></svg
+    >
+  </div>
+  <div class="edge edge-r" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="26" height="26"
+      ><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round"></path></svg
+    >
+  </div>
+
+  <p class="hint" id="hint">{t('ui.hint')}</p>
+
+  <dialog class="lb" id="lb" aria-label="Video">
+    <button class="lb-x" id="lbx" aria-label={t('nav.close')}>&times;</button>
+    <video id="lbv" controls playsinline preload="none"></video>
+  </dialog>
+
+  <div class="hud">
+    <span class="count"><b id="cur">1</b> <i>/</i> {TOTAL_SLIDES}</span>
+    <div class="ticks" id="ticks" role="presentation">
+      {
+        slides.map((s) => {
+          const mark = marks.find((m) => m.slide === s.n);
+          return <span class:list={['tick', { start: !!mark }]} data-n={s.n} title={mark?.label} />;
+        })
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const deck = document.getElementById('deck')!;
+  const total = Number(deck.dataset.total);
+  const figures = Array.from(deck.querySelectorAll<HTMLElement>('.slide'));
+  const curEl = document.getElementById('cur')!;
+  const ticks = Array.from(document.querySelectorAll<HTMLElement>('.tick'));
+  const hint = document.getElementById('hint')!;
+
+  let i = 0;
+  let hintShown = false;
+
+  /** carica la versione piena e le vicine, così il salto non mostra sfocato */
+  function ensureFull(n: number) {
+    for (const k of [n - 1, n, n + 1, n + 2]) {
+      const f = figures[k];
+      if (!f) continue;
+      const img = f.querySelector('img')!;
+      const full = img.dataset.full;
+      if (full && img.getAttribute('src') !== full) {
+        img.loading = 'eager';
+        img.src = full;
+      }
+    }
+  }
+
+  function show(n: number, push = true) {
+    i = Math.max(0, Math.min(total - 1, n));
+    figures.forEach((f, k) => {
+      const on = k === i;
+      f.classList.toggle('on', on);
+      f.setAttribute('aria-hidden', on ? 'false' : 'true');
+    });
+    ticks.forEach((tk, k) => tk.classList.toggle('done', k <= i));
+    curEl.textContent = String(i + 1);
+    ensureFull(i);
+    document.querySelectorAll<HTMLElement>('[data-sec]').forEach((a) => {
+      const from = Number(a.dataset.sec);
+      const next = Number(a.dataset.secEnd || total);
+      a.classList.toggle('on', i + 1 >= from && i + 1 <= next);
+    });
+    if (push) history.replaceState(null, '', `#${i + 1}`);
+    // fermare un video aperto quando si cambia slide
+    document.querySelectorAll('video').forEach((v) => v.pause());
+    if (!hintShown && i > 0) {
+      hintShown = true;
+      hint.classList.add('gone');
+    }
+  }
+
+  const next = () => show(i + 1);
+  const prev = () => show(i - 1);
+
+  document.getElementById('next')!.addEventListener('click', next);
+  document.getElementById('prev')!.addEventListener('click', prev);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.target as HTMLElement)?.closest('input, textarea')) return;
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'PageDown':
+      case ' ':
+        e.preventDefault();
+        next();
+        break;
+      case 'ArrowLeft':
+      case 'PageUp':
+        e.preventDefault();
+        prev();
+        break;
+      case 'Home':
+        e.preventDefault();
+        show(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        show(total - 1);
+        break;
+      case 'f':
+        toggleFull();
+        break;
+    }
+  });
+
+  /* scorrimento col dito */
+  let x0 = 0,
+    y0 = 0,
+    t0 = 0;
+  deck.addEventListener(
+    'touchstart',
+    (e) => {
+      x0 = e.changedTouches[0].clientX;
+      y0 = e.changedTouches[0].clientY;
+      t0 = Date.now();
+    },
+    { passive: true }
+  );
+  deck.addEventListener(
+    'touchend',
+    (e) => {
+      const dx = e.changedTouches[0].clientX - x0;
+      const dy = e.changedTouches[0].clientY - y0;
+      if (Date.now() - t0 < 700 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        dx < 0 ? next() : prev();
+      }
+    },
+    { passive: true }
+  );
+
+  /* la rotellina sfoglia, senza accumulare gli eventi del trackpad */
+  let wheelLock = false;
+  deck.addEventListener(
+    'wheel',
+    (e) => {
+      if (Math.abs(e.deltaY) < 18 || wheelLock) return;
+      wheelLock = true;
+      setTimeout(() => (wheelLock = false), 480);
+      e.deltaY > 0 ? next() : prev();
+    },
+    { passive: true }
+  );
+
+  /* le sezioni della navbar saltano alla slide giusta */
+  document.querySelectorAll<HTMLElement>('[data-sec]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(Number(a.dataset.sec) - 1);
+      document.dispatchEvent(new CustomEvent('deck:jump'));
+    });
+  });
+
+  /* pallini in basso */
+  ticks.forEach((tk) =>
+    tk.addEventListener('click', () => show(Number(tk.dataset.n) - 1))
+  );
+
+  /* ---- video: partono SOLO premendo play ---- */
+  const lb = document.getElementById('lb') as HTMLDialogElement;
+  const lbv = document.getElementById('lbv') as HTMLVideoElement;
+
+  function closeVideo() {
+    lbv.pause();
+    lbv.removeAttribute('src');
+    lbv.load();
+    if (lb.open) lb.close();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.vplay').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation(); // non deve anche cambiare slide
+      lbv.src = b.dataset.video!;
+      lb.showModal();
+      lbv.play().catch(() => {});
+    });
+  });
+
+  document.getElementById('lbx')!.addEventListener('click', closeVideo);
+  lb.addEventListener('click', (e) => {
+    if (e.target === lb) closeVideo();
+  });
+  lb.addEventListener('close', () => {
+    lbv.pause();
+    lbv.removeAttribute('src');
+  });
+
+  function toggleFull() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }
+  document.getElementById('fs')?.addEventListener('click', toggleFull);
+
+  /* apertura diretta su una slide: secreative.it/#12 */
+  const fromHash = Number(location.hash.replace('#', ''));
+  show(Number.isFinite(fromHash) && fromHash >= 1 ? fromHash - 1 : 0, false);
+
+  document.addEventListener('deck:goto', (e) => show((e as CustomEvent).detail - 1));
+</script>
+
+<style>
+  .deck {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  .stage {
+    position: absolute;
+    inset: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.42s ease;
+  }
+  .slide.on {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* il contenitore ha le stesse proporzioni della slide: così i pulsanti
+     play stanno sopra i video anche quando ci sono bande ai lati */
+  .holder {
+    position: relative;
+    aspect-ratio: 2200 / 1238;
+    max-width: 100%;
+    max-height: 100%;
+    width: min(100%, calc(100vh * 2200 / 1238));
+  }
+
+  /* contain: la slide si vede INTERA, mai tagliata */
+  .holder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* un play al centro di ciascuno dei tre filmati affiancati */
+  .vplay {
+    position: absolute;
+    top: 50%;
+    left: calc((var(--col) * 33.333%) + 16.666%);
+    translate: -50% -50%;
+    z-index: 8;
+    width: clamp(46px, 5.2vw, 66px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.42);
+    border: 1.5px solid rgba(255, 255, 255, 0.72);
+    cursor: pointer;
+    transition: background 0.3s, scale 0.3s, color 0.3s;
+  }
+  .vplay svg {
+    margin-left: 2px;
+    width: 45%;
+    height: 45%;
+  }
+  .vplay:hover {
+    background: var(--yellow, #ffe212);
+    border-color: var(--yellow, #ffe212);
+    color: #000;
+    scale: 1.09;
+  }
+
+  .lb {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(94vw, 430px);
+    max-height: 94vh;
+    overflow: visible;
+  }
+  .lb::backdrop {
+    background: rgba(0, 0, 0, 0.92);
+  }
+  .lb video {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 8px;
+    background: #000;
+    display: block;
+  }
+  .lb-x {
+    position: absolute;
+    top: -2.4rem;
+    right: 0;
+    font-size: 2rem;
+    line-height: 1;
+    color: #fff;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  .lb-x:hover {
+    opacity: 1;
+  }
+
+  /* metà schermo per avanzare, un quarto a sinistra per tornare */
+  .zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 5;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .zone-prev {
+    left: 0;
+    width: 26%;
+  }
+  .zone-next {
+    left: 26%;
+    right: 0;
+  }
+
+  .edge {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 4;
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .edge-l {
+    left: 1.1rem;
+  }
+  .edge-r {
+    right: 1.1rem;
+  }
+  .zone-prev:hover ~ .edge-l,
+  .zone-next:hover ~ .edge-r {
+    opacity: 1;
+  }
+
+  .hint {
+    position: absolute;
+    left: 50%;
+    bottom: 4.2rem;
+    translate: -50% 0;
+    z-index: 6;
+    margin: 0;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    animation: fade-in 0.8s 1.4s backwards;
+  }
+  .hint.gone {
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1rem 0.75rem;
+    pointer-events: none;
+  }
+
+  .count {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.55);
+    font-variant-numeric: tabular-nums;
+  }
+  .count b {
+    color: #fff;
+    font-weight: 600;
+  }
+  .count i {
+    font-style: normal;
+    opacity: 0.4;
+    margin: 0 0.15rem;
+  }
+
+  .ticks {
+    display: flex;
+    gap: 3px;
+    width: min(100%, 900px);
+    pointer-events: auto;
+  }
+  .tick {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.16);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .tick.start {
+    background: rgba(255, 226, 18, 0.35);
+  }
+  .tick.done {
+    background: rgba(255, 255, 255, 0.62);
+  }
+  .tick.start.done {
+    background: var(--yellow, #ffe212);
+  }
+  .tick:hover {
+    transform: scaleY(2.4);
+  }
+
+  @media (max-width: 700px) {
+    .hint {
+      bottom: 3.6rem;
+      font-size: 0.66rem;
+    }
+    .edge {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide {
+      transition: none;
+    }
+    .hint {
+      animation: none;
+    }
+  }
+</style>
