@@ -120,6 +120,8 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
 
   let i = 0;
   let hintShown = false;
+  let started = false;
+  let outTimer = 0;
 
   /** carica la versione piena e le vicine, così il salto non mostra sfocato */
   function ensureFull(n: number) {
@@ -135,15 +137,57 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     }
   }
 
-  function show(n: number, push = true) {
-    i = Math.max(0, Math.min(total - 1, n));
+  /**
+   * Il passaggio da una slide all'altra.
+   *  - 'step' — si sfoglia una alla volta: la nuova entra dal lato verso cui
+   *    si sta andando, la vecchia esce dall'altro, con un velo di sfocatura.
+   *  - 'jump' — si salta a una sezione o a un trattino: niente spinta
+   *    laterale, una dissolvenza con un piccolo zoom.
+   * La direzione viaggia nel CSS come --dir (1 avanti, -1 indietro).
+   */
+  function show(n: number, push = true, mode: 'step' | 'jump' = 'step') {
+    const to = Math.max(0, Math.min(total - 1, n));
+    if (started && to === i) return;
+
+    const from = i;
+    i = to;
+
+    deck.style.setProperty('--dir', to >= from ? '1' : '-1');
+    deck.dataset.mode = mode;
+
+    // se il passaggio precedente è ancora in corso, si riparte puliti
+    clearTimeout(outTimer);
+    figures.forEach((f) => f.classList.remove('out'));
+
+    // La slide in arrivo deve trovarsi GIÀ dal lato giusto prima di entrare.
+    // Senza questa lettura il browser userebbe ancora la direzione precedente
+    // come punto di partenza, e invertendo la marcia la slide entrerebbe dal
+    // lato sbagliato. A riposo le slide non hanno transizione: si spostano di
+    // scatto, senza che si veda nulla.
+    void deck.offsetWidth;
+
     figures.forEach((f, k) => {
       const on = k === i;
+      // la slide che se ne va resta visibile finché non ha finito di uscire
+      if (started && k === from && !on) f.classList.add('out');
       f.classList.toggle('on', on);
       f.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
-    ticks.forEach((tk, k) => tk.classList.toggle('done', k <= i));
+    outTimer = window.setTimeout(
+      () => figures.forEach((f) => f.classList.remove('out')),
+      700
+    );
+    started = true;
+
+    ticks.forEach((tk, k) => {
+      tk.classList.toggle('done', k <= i);
+      tk.classList.toggle('now', k === i);
+    });
     curEl.textContent = String(i + 1);
+    // il numero in basso si rimette al passo con la slide
+    curEl.classList.remove('bump');
+    void curEl.offsetWidth;
+    curEl.classList.add('bump');
     ensureFull(i);
     document.querySelectorAll<HTMLElement>('[data-sec]').forEach((a) => {
       const from = Number(a.dataset.sec);
@@ -181,11 +225,11 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
         break;
       case 'Home':
         e.preventDefault();
-        show(0);
+        show(0, true, 'jump');
         break;
       case 'End':
         e.preventDefault();
-        show(total - 1);
+        show(total - 1, true, 'jump');
         break;
       case 'f':
         toggleFull();
@@ -235,14 +279,14 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
   document.querySelectorAll<HTMLElement>('[data-sec]').forEach((a) => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      show(Number(a.dataset.sec) - 1);
+      show(Number(a.dataset.sec) - 1, true, 'jump');
       document.dispatchEvent(new CustomEvent('deck:jump'));
     });
   });
 
   /* pallini in basso */
   ticks.forEach((tk) =>
-    tk.addEventListener('click', () => show(Number(tk.dataset.n) - 1))
+    tk.addEventListener('click', () => show(Number(tk.dataset.n) - 1, true, 'jump'))
   );
 
   /* ---- video: partono SOLO premendo play ---- */
@@ -284,7 +328,9 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
   const fromHash = Number(location.hash.replace('#', ''));
   show(Number.isFinite(fromHash) && fromHash >= 1 ? fromHash - 1 : 0, false);
 
-  document.addEventListener('deck:goto', (e) => show((e as CustomEvent).detail - 1));
+  document.addEventListener('deck:goto', (e) =>
+    show((e as CustomEvent).detail - 1, true, 'jump')
+  );
 </script>
 
 <style>
@@ -294,6 +340,11 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     background: #000;
     overflow: hidden;
     touch-action: pan-y;
+    /* 1 = si va avanti, -1 = si torna indietro. Lo imposta il JS a ogni
+       cambio di slide e lo leggono le animazioni qui sotto. */
+    --dir: 1;
+    --shift: 7%;
+    --blur: 7px;
   }
 
   .stage {
@@ -301,6 +352,12 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     inset: 0;
   }
 
+  /* --- il passaggio fra una slide e l'altra ---------------------------
+     A riposo la slide sta ferma da un lato, sfocata e trasparente: entra
+     scivolando verso il centro e mettendo a fuoco. Quella che se ne va fa
+     la stessa strada al contrario, dalla parte opposta.
+     Solo le due slide in movimento hanno una transizione: le altre 34
+     cambiano di scatto, senza far lavorare il browser a vuoto. */
   .slide {
     position: absolute;
     inset: 0;
@@ -309,11 +366,48 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     place-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.42s ease;
+    transform: translate3d(calc(var(--dir) * var(--shift)), 0, 0) scale(0.955);
+    filter: blur(var(--blur));
+    transition: none;
   }
+
+  .slide.on,
+  .slide.out {
+    transition:
+      opacity 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.62s cubic-bezier(0.22, 0.72, 0.24, 1),
+      filter 0.44s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity, filter;
+  }
+
   .slide.on {
     opacity: 1;
     visibility: visible;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+    z-index: 2;
+  }
+
+  /* quella uscente: resta visibile finché non ha finito, ed esce dal lato
+     opposto a quello da cui è arrivata la nuova */
+  .slide.out {
+    visibility: visible;
+    opacity: 0;
+    transform: translate3d(calc(var(--dir) * -1 * var(--shift)), 0, 0) scale(0.955);
+    filter: blur(var(--blur));
+    z-index: 1;
+  }
+
+  /* salto a una sezione o a un trattino: non ha senso una spinta laterale
+     (si può saltare di venti slide), quindi dissolvenza con un po' di zoom */
+  .deck[data-mode='jump'] .slide {
+    transform: scale(0.9);
+  }
+  .deck[data-mode='jump'] .slide.on {
+    transform: scale(1);
+  }
+  .deck[data-mode='jump'] .slide.out {
+    transform: scale(1.08);
   }
 
   /* il contenitore ha le stesse proporzioni della slide: così i pulsanti
@@ -357,6 +451,16 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     margin-left: 2px;
     width: 45%;
     height: 45%;
+  }
+  /* i tasti play si accendono un attimo dopo che la slide è arrivata */
+  .slide.on .vplay {
+    animation: vplay-in 0.5s 0.2s backwards cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes vplay-in {
+    from {
+      opacity: 0;
+      scale: 0.55;
+    }
   }
   .vplay:hover {
     background: var(--yellow, #ffe212);
@@ -488,6 +592,17 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
   .count b {
     color: #fff;
     font-weight: 600;
+    display: inline-block;
+  }
+  /* il numero scorre nella stessa direzione in cui si sta sfogliando */
+  .count b.bump {
+    animation: num-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes num-in {
+    from {
+      opacity: 0;
+      translate: 0 calc(var(--dir) * 0.6em);
+    }
   }
   .count i {
     font-style: normal;
@@ -518,6 +633,10 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
   .tick.start.done {
     background: var(--yellow, #ffe212);
   }
+  /* il trattino della slide corrente resta un filo più alto degli altri */
+  .tick.now {
+    transform: scaleY(2.2);
+  }
   .tick:hover {
     transform: scaleY(2.4);
   }
@@ -530,11 +649,40 @@ const marks = sections.map((s) => ({ label: t(s.key as any), slide: s.slide }));
     .edge {
       display: none;
     }
+    /* sfocare un'immagine a tutto schermo costa: sul telefono si lascia
+       solo lo scorrimento, che è la parte che si vede davvero */
+    .deck {
+      --shift: 9%;
+    }
+    .slide,
+    .slide.out {
+      filter: none;
+    }
   }
 
+  /* chi ha chiesto meno animazioni al sistema operativo ottiene una
+     dissolvenza asciutta: niente movimento, niente sfocatura */
   @media (prefers-reduced-motion: reduce) {
-    .slide {
-      transition: none;
+    .deck {
+      --shift: 0%;
+      --blur: 0px;
+    }
+    .slide,
+    .slide.on,
+    .slide.out,
+    .deck[data-mode='jump'] .slide,
+    .deck[data-mode='jump'] .slide.on,
+    .deck[data-mode='jump'] .slide.out {
+      transform: none;
+      filter: none;
+    }
+    .slide.on,
+    .slide.out {
+      transition: opacity 0.2s linear;
+    }
+    .slide.on .vplay,
+    .count b.bump {
+      animation: none;
     }
     .hint {
       animation: none;
