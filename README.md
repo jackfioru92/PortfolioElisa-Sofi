@@ -146,6 +146,36 @@ automatico.
 
 ---
 
+## Il primo sito è conservato
+
+Prima del deck era stato fatto un **portfolio one-page scuro** con animazioni allo
+scroll (GSAP + Lenis). È stato scartato perché il design doveva restare quello del
+Keynote, ma non è andato perso: vive nel branch **`sito-nero`**, anche su GitHub.
+
+Provato il 27/08/2026: si ricostruisce senza modifiche, immagini comprese.
+
+### Guardarlo senza toccare niente
+
+```bash
+git switch sito-nero
+npm run dev
+git switch main
+```
+
+### Rimetterlo online al posto del deck
+
+```bash
+git switch sito-nero
+./deploy.sh
+```
+
+`deploy.env` non è tracciato, quindi resta al suo posto passando da un branch
+all'altro. Per tornare al deck: `git switch main && ./deploy.sh`.
+
+> Il branch è anche taggato **`v1-sito-nero`**, se preferisci cercarlo per nome.
+
+---
+
 ## Da fare
 
 - [ ] Far controllare a Elisa e Sofia i punti in cui le sezioni "ripartono"
