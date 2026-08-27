@@ -3,3 +3,6 @@ dist/
 .astro/
 .DS_Store
 *.log
+
+# configurazione del server: locale, non si pubblica
+deploy.env

@@ -22,6 +22,9 @@ Il sito pesa **4,9 MB in tutto**, di cui 4,4 MB di immagini. L'HTML è 25 KB.
 ## Comandi
 
 ```bash
+npm install                          # la prima volta
+cp deploy.env.example deploy.env     # la prima volta, poi compilalo
+
 npm run dev      # anteprima locale su http://localhost:4321
 npm run build    # genera dist/
 ./deploy.sh      # build + pubblicazione sul server
@@ -100,11 +103,14 @@ Consiglio: MP4 H.264, lato lungo max 1080px, sotto i 10 MB l'uno.
 ## Il server
 
 ```
-Debian 13 · nginx · 57.131.42.4
+Debian 13 · nginx · certbot
 config: /etc/nginx/sites-available/secreative        (sito)
         /etc/nginx/sites-available/secreativestudio  (redirect)
 file:   /var/www/secreative
 ```
+
+I dati di accesso stanno in `deploy.env`, che **non** è pubblicato su GitHub.
+Alla prima volta: `cp deploy.env.example deploy.env` e compilalo.
 
 Convive con gli altri siti già presenti (spesax.it, altesiasuite.com,
 wikideas.it, parlamento.wikideas.it) senza interferire: è un blocco

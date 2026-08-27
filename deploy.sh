@@ -1,23 +1,31 @@
 #!/usr/bin/env bash
 #
-# Pubblica secreative.it sul server.
+# Pubblica il sito sul server.
 #
 #   ./deploy.sh
 #
-# Costruisce il sito in locale e carica SOLO i file statici in /var/www/secreative.
+# Costruisce il sito in locale e carica SOLO i file statici.
 # Non tocca nginx, non tocca gli altri siti, non installa niente sul server.
 #
-# La password del server viene chiesta due volte (una per l'invio, una per
-# l'installazione). Per non digitarla più:
-#   ssh-copy-id debian@57.131.42.4
+# I dati del server stanno in `deploy.env`, che non viene pubblicato.
+# Alla prima volta:  cp deploy.env.example deploy.env  e compilalo.
+#
+# Per non digitare più la password:  ssh-copy-id "$HOST"
 #
 set -euo pipefail
 
-HOST="debian@57.131.42.4"
-DEST="/var/www/secreative"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-
 cd "$HERE"
+
+if [ ! -f deploy.env ]; then
+  echo "✗ manca deploy.env — copialo da deploy.env.example e compilalo" >&2
+  exit 1
+fi
+# shellcheck disable=SC1091
+source ./deploy.env
+: "${HOST:?manca HOST in deploy.env}"
+: "${DEST:?manca DEST in deploy.env}"
+: "${SITE:?manca SITE in deploy.env}"
 
 echo "▸ Build"
 npm run build
@@ -48,9 +56,8 @@ rm -f "$TGZ"
 
 echo "▸ Verifica"
 for p in / /en/; do
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "https://secreative.it$p" 2>/dev/null \
-      || curl -s -o /dev/null -w "%{http_code}" --max-time 20 --resolve secreative.it:80:57.131.42.4 "http://secreative.it$p")
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 "https://${SITE}${p}")
   printf "  %-8s HTTP %s\n" "$p" "$code"
 done
 
-echo "✓ Fatto"
+echo "✓ Fatto — https://${SITE}"
