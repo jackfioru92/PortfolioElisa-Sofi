@@ -1,0 +1,180 @@
+@import '@fontsource/bodoni-moda/400.css';
+@import '@fontsource/bodoni-moda/500.css';
+@import '@fontsource-variable/manrope';
+
+:root {
+  --bg: #0a0a0a;
+  --bg-soft: #121212;
+  --bg-card: #171717;
+  --fg: #f4f2ee;
+  --fg-dim: #a3a09a;
+  --fg-faint: #6b6862;
+  --yellow: #ffe212;
+  --magenta: #d40d52;
+  --line: rgba(244, 242, 238, 0.12);
+
+  --serif: 'Bodoni Moda', 'Times New Roman', serif;
+  --sans: 'Manrope Variable', 'Manrope', system-ui, -apple-system, sans-serif;
+
+  --pad: clamp(1.25rem, 5vw, 5rem);
+  --maxw: 1440px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+  line-height: 1.65;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--yellow);
+  color: #0a0a0a;
+}
+
+:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- layout ---------- */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+section {
+  position: relative;
+  padding-block: clamp(5rem, 12vh, 10rem);
+  scroll-margin-top: 72px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--fg-dim);
+  margin-bottom: 1.75rem;
+}
+
+.label::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--yellow);
+  flex: none;
+}
+
+.h-sec {
+  font-size: clamp(2.75rem, 8vw, 6.5rem);
+}
+
+.lead {
+  color: var(--fg-dim);
+  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+  line-height: 1.6;
+  max-width: 62ch;
+}
+
+/* ---------- reveal (GSAP toglie .pre a rivelazione fatta) ---------- */
+.pre {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pre {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* fallback: se il JS non parte, niente resta invisibile */
+.no-js .pre {
+  opacity: 1 !important;
+}
+
+/* ---------- utility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}

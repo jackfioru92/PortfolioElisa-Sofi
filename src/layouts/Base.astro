@@ -1,0 +1,194 @@
+---
+import '../styles/global.css';
+import { useTranslations, type Lang } from '../i18n/ui';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const site = 'https://secreative.it';
+const canonical = lang === 'it' ? `${site}/` : `${site}/en/`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'SE Creative',
+  description: t('meta.desc'),
+  url: site,
+  email: 'secreative06@gmail.com',
+  telephone: '+393514374436',
+  image: `${site}/img/logo/se-creative.png`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Perugia',
+    addressRegion: 'Umbria',
+    addressCountry: 'IT',
+  },
+  founder: [
+    { '@type': 'Person', name: 'Sofia Ercolani' },
+    { '@type': 'Person', name: 'Elisa Zetti' },
+  ],
+  knowsAbout: [
+    'Brand Identity',
+    'Packaging Design',
+    'Social Media Strategy',
+    'Video Production',
+    'Web Design',
+  ],
+};
+---
+
+<!doctype html>
+<html lang={lang} class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t('meta.title')}</title>
+    <meta name="description" content={t('meta.desc')} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="alternate" hreflang="it" href={`${site}/`} />
+    <link rel="alternate" hreflang="en" href={`${site}/en/`} />
+    <link rel="alternate" hreflang="x-default" href={`${site}/`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SE Creative" />
+    <meta property="og:title" content={t('meta.title')} />
+    <meta property="og:description" content={t('meta.desc')} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${site}/img/logo/icon-512.png`} />
+    <meta property="og:locale" content={lang === 'it' ? 'it_IT' : 'en_GB'} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" href="/img/logo/icon-512.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/img/logo/apple-touch-icon.png" />
+
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">{lang === 'it' ? 'Vai al contenuto' : 'Skip to content'}</a>
+    <Nav lang={lang} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+
+    <script>
+      import Lenis from 'lenis';
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ---- smooth scroll inerziale ---- */
+      if (!reduced) {
+        const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+        (window as any).__lenis = lenis;
+
+        document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+          a.addEventListener('click', (e) => {
+            const id = a.getAttribute('href')!;
+            if (id.length < 2) return;
+            const el = document.querySelector(id);
+            if (!el) return;
+            e.preventDefault();
+            lenis.scrollTo(el as HTMLElement, { offset: -72 });
+          });
+        });
+      }
+
+      /* ---- rivelazioni allo scroll ---- */
+      const revealUp = gsap.utils.toArray<HTMLElement>('[data-reveal]');
+      revealUp.forEach((el) => {
+        const delay = parseFloat(el.dataset.revealDelay || '0');
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: reduced ? 0 : 34 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: reduced ? 0.01 : 1,
+            delay,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+            onStart: () => el.classList.remove('pre'),
+          }
+        );
+      });
+
+      /* ---- titoli riga per riga ---- */
+      gsap.utils.toArray<HTMLElement>('[data-lines]').forEach((el) => {
+        const lines = el.querySelectorAll<HTMLElement>('.line > span');
+        gsap.fromTo(
+          lines,
+          { yPercent: reduced ? 0 : 108 },
+          {
+            yPercent: 0,
+            duration: reduced ? 0.01 : 1.15,
+            ease: 'power4.out',
+            stagger: 0.09,
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+            onStart: () => el.classList.remove('pre'),
+          }
+        );
+      });
+
+      /* ---- parallasse leggero sulle immagini ---- */
+      if (!reduced) {
+        gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
+          gsap.fromTo(
+            el,
+            { yPercent: -6 },
+            {
+              yPercent: 6,
+              ease: 'none',
+              scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
+            }
+          );
+        });
+      }
+
+      /* ---- barra di avanzamento ---- */
+      const bar = document.querySelector<HTMLElement>('.progress');
+      if (bar) {
+        gsap.to(bar, {
+          scaleX: 1,
+          ease: 'none',
+          scrollTrigger: { start: 0, end: 'max', scrub: 0.3 },
+        });
+      }
+
+      /* le immagini caricate in ritardo spostano il layout: ricalcola */
+      window.addEventListener('load', () => ScrollTrigger.refresh());
+    </script>
+
+    <style>
+      .skip {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 200;
+        background: var(--yellow);
+        color: #0a0a0a;
+        padding: 0.75rem 1.25rem;
+        font-weight: 700;
+      }
+      .skip:focus {
+        left: 0;
+      }
+    </style>
+  </body>
+</html>

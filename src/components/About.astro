@@ -1,0 +1,142 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const stats = [
+  { n: '30+', k: 'about.n1' },
+  { n: '5+', k: 'about.n2' },
+  { n: '10+', k: 'about.n3' },
+] as const;
+---
+
+<section class="about" id="about">
+  <div class="wrap grid">
+    <div class="left">
+      <p class="label pre" data-reveal>{t('about.label')}</p>
+      <h2 class="pre" data-lines>
+        <span class="line"><span>{t('about.title')}</span></span>
+      </h2>
+      <figure class="shot pre" data-reveal data-reveal-delay="0.1">
+        <img
+          src="/img/slides/s21.webp"
+          alt=""
+          width="1600"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          data-parallax
+        />
+      </figure>
+    </div>
+
+    <div class="right">
+      <p class="p pre" data-reveal>{t('about.p1')}</p>
+      <p class="p pre" data-reveal data-reveal-delay="0.08">{t('about.p2')}</p>
+
+      <blockquote class="claim pre" data-reveal data-reveal-delay="0.16">
+        {t('about.claim')}
+      </blockquote>
+
+      <ul class="stats">
+        {
+          stats.map((s, i) => (
+            <li class="pre" data-reveal data-reveal-delay={0.2 + i * 0.07}>
+              <strong>{s.n}</strong>
+              <span>{t(s.k as any)}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .left h2 {
+    font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+    margin-bottom: 2.5rem;
+  }
+
+  .shot {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 4px;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-card);
+  }
+  .shot img {
+    width: 100%;
+    height: 118%;
+    object-fit: cover;
+    margin-top: -9%;
+  }
+
+  .right {
+    padding-top: clamp(0rem, 4vw, 3.5rem);
+  }
+  .p {
+    color: var(--fg-dim);
+    font-size: clamp(1rem, 0.98rem + 0.2vw, 1.1rem);
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+  }
+
+  .claim {
+    margin: 2.5rem 0;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--yellow);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    line-height: 1.28;
+    color: var(--fg);
+  }
+
+  .stats {
+    list-style: none;
+    margin: 0;
+    padding: 2rem 0 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .stats strong {
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--yellow);
+  }
+  .stats span {
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    color: var(--fg-faint);
+    line-height: 1.35;
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .right {
+      padding-top: 0;
+    }
+  }
+</style>

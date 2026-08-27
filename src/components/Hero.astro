@@ -1,0 +1,253 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const lines = [t('hero.l1'), t('hero.l2'), t('hero.l3')];
+---
+
+<section class="hero" id="top">
+  <div class="glow" aria-hidden="true"></div>
+
+  <div class="wrap hero-in">
+    <p class="tag pre">{t('hero.tag')}</p>
+
+    <h1 class="title">
+      {
+        lines.map((l) => (
+          <span class="line">
+            <span>{l}</span>
+          </span>
+        ))
+      }
+    </h1>
+
+    <figure class="mark" aria-hidden="true">
+      <img src="/img/logo/se-creative.webp" alt="" width="600" height="600" fetchpriority="high" />
+    </figure>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      {
+        Array.from({ length: 4 }).map(() => (
+          <span>
+            {t('hero.roles')} <i>·</i>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <a class="scroll pre" href="#work">
+    <span>{t('hero.scroll')}</span>
+    <svg width="12" height="34" viewBox="0 0 12 34" fill="none" aria-hidden="true">
+      <path d="M6 0v29M1 24l5 5 5-5" stroke="currentColor" stroke-width="1.2"></path>
+    </svg>
+  </a>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const q = (s: string) => document.querySelector(s);
+
+  const tl = gsap.timeline({ defaults: { ease: 'power4.out' }, delay: 0.15 });
+
+  tl.to('.hero .tag', { opacity: 1, y: 0, duration: 0.8 }, 0)
+    .fromTo(
+      '.hero .title .line > span',
+      { yPercent: reduced ? 0 : 110 },
+      { yPercent: 0, duration: reduced ? 0.01 : 1.25, stagger: 0.1 },
+      0.1
+    )
+    .fromTo(
+      '.hero .mark',
+      { opacity: 0, scale: reduced ? 1 : 0.82, rotate: reduced ? 0 : -8 },
+      { opacity: 1, scale: 1, rotate: 0, duration: 1.6 },
+      0.25
+    )
+    .to('.hero .scroll', { opacity: 1, y: 0, duration: 0.7 }, 0.9)
+    .to('.hero .marquee', { opacity: 1, duration: 0.9 }, 0.8);
+
+  document.querySelector('.hero .tag')?.classList.remove('pre');
+  document.querySelector('.hero .scroll')?.classList.remove('pre');
+
+  /* il marchio segue appena il mouse: presenza, non effetto */
+  if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+    const mark = q('.hero .mark') as HTMLElement | null;
+    if (mark) {
+      const xTo = gsap.quickTo(mark, 'x', { duration: 0.9, ease: 'power3' });
+      const yTo = gsap.quickTo(mark, 'y', { duration: 0.9, ease: 'power3' });
+      window.addEventListener('pointermove', (e) => {
+        const dx = (e.clientX / window.innerWidth - 0.5) * 26;
+        const dy = (e.clientY / window.innerHeight - 0.5) * 26;
+        xTo(dx);
+        yTo(dy);
+      });
+    }
+  }
+</script>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 7rem 0;
+    overflow: hidden;
+  }
+
+  .glow {
+    position: absolute;
+    top: -25%;
+    right: -10%;
+    width: min(70vw, 900px);
+    aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(255, 226, 18, 0.09), transparent 62%);
+    pointer-events: none;
+  }
+
+  .hero-in {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .tag {
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    opacity: 0;
+    transform: translateY(14px);
+    margin-bottom: 0.5rem;
+  }
+
+  .title {
+    position: relative;
+    z-index: 2;
+    font-size: clamp(2.3rem, 6.4vw, 5.75rem);
+    line-height: 1.06;
+  }
+  .title .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+  .title .line > span {
+    display: block;
+    will-change: transform;
+  }
+  .title .line:last-child > span {
+    font-style: italic;
+    color: var(--yellow);
+  }
+
+  .mark {
+    position: absolute;
+    right: 0;
+    top: 2%;
+    z-index: 1;
+    margin: 0;
+    width: min(24vw, 270px);
+    opacity: 0;
+    will-change: transform;
+    pointer-events: none;
+  }
+  .mark img {
+    width: 100%;
+    animation: float 7s ease-in-out infinite;
+  }
+  @keyframes float {
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+
+  .marquee {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding-block: 0.9rem;
+    overflow: hidden;
+    opacity: 0;
+  }
+  .track {
+    display: flex;
+    width: max-content;
+    animation: slide 42s linear infinite;
+  }
+  .track span {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    white-space: nowrap;
+    padding-right: 2.5rem;
+  }
+  .track i {
+    color: var(--yellow);
+    font-style: normal;
+  }
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .scroll {
+    position: absolute;
+    right: var(--pad);
+    bottom: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  .scroll svg {
+    animation: nudge 2.2s ease-in-out infinite;
+  }
+  @keyframes nudge {
+    50% {
+      transform: translateY(7px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .mark {
+      position: static;
+      translate: none;
+      width: min(46vw, 190px);
+      margin-bottom: 0.5rem;
+      order: -1;
+    }
+    .hero-in {
+      gap: 1.25rem;
+    }
+    .scroll {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track,
+    .mark img,
+    .scroll svg {
+      animation: none;
+    }
+  }
+</style>

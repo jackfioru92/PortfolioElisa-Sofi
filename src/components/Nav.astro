@@ -1,0 +1,279 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const other: Lang = lang === 'it' ? 'en' : 'it';
+const otherHref = other === 'it' ? '/' : '/en/';
+
+const links = [
+  { href: '#work', label: t('nav.work') },
+  { href: '#services', label: t('nav.services') },
+  { href: '#about', label: t('nav.about') },
+  { href: '#reels', label: t('nav.reels') },
+  { href: '#contact', label: t('nav.contact') },
+];
+---
+
+<div class="progress" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href={lang === 'it' ? '/' : '/en/'} aria-label="SE Creative">
+      <img src="/img/logo/se-creative.webp" alt="" width="120" height="120" />
+      <span>SE Creative</span>
+    </a>
+
+    <nav class="links" aria-label={t('nav.menu')}>
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="right">
+      <div class="lang" role="group" aria-label="Lingua / Language">
+        <span class="on" aria-current="true">{lang.toUpperCase()}</span>
+        <a href={otherHref} hreflang={other} rel="alternate">{other.toUpperCase()}</a>
+      </div>
+      <button class="burger" aria-expanded="false" aria-controls="mobile" aria-label={t('nav.menu')}>
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile" id="mobile" hidden>
+  <nav aria-label={t('nav.menu')}>
+    {links.map((l, i) => <a href={l.href} style={`--i:${i}`}>{l.label}</a>)}
+  </nav>
+  <a class="m-lang" href={otherHref} hreflang={other}>
+    {other === 'it' ? 'Passa all’italiano' : 'Switch to English'}
+  </a>
+</div>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('.burger')!;
+  const panel = document.getElementById('mobile')!;
+  const nav = document.getElementById('nav')!;
+
+  const setOpen = (open: boolean) => {
+    burger.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
+    burger.classList.toggle('is-open', open);
+    const lenis = (window as any).__lenis;
+    if (lenis) open ? lenis.stop() : lenis.start();
+  };
+
+  burger.addEventListener('click', () => setOpen(burger.getAttribute('aria-expanded') !== 'true'));
+  panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') setOpen(false);
+  });
+
+  // barra compatta dopo lo scroll
+  const onScroll = () => nav.classList.toggle('solid', window.scrollY > 40);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+<style>
+  .progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--yellow);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    z-index: 120;
+  }
+
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    transition: background 0.4s var(--ease), backdrop-filter 0.4s var(--ease);
+  }
+  .nav.solid {
+    background: rgba(10, 10, 10, 0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-in {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: 1rem var(--pad);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-right: auto;
+    flex: none;
+  }
+  .brand img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+  .brand span {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+
+  .links {
+    display: flex;
+    gap: 2rem;
+  }
+  .links a {
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-dim);
+    position: relative;
+    padding-block: 0.3rem;
+    transition: color 0.3s;
+  }
+  .links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--yellow);
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+    transition: transform 0.45s var(--ease);
+  }
+  .links a:hover {
+    color: var(--fg);
+  }
+  .links a:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0 50%;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: none;
+  }
+
+  .lang {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .lang > * {
+    padding: 0.42rem 0.72rem;
+    transition: background 0.3s, color 0.3s;
+  }
+  .lang .on {
+    background: var(--yellow);
+    color: #0a0a0a;
+  }
+  .lang a {
+    color: var(--fg-dim);
+  }
+  .lang a:hover {
+    background: rgba(244, 242, 238, 0.08);
+    color: var(--fg);
+  }
+
+  .burger {
+    display: none;
+    width: 40px;
+    height: 40px;
+    position: relative;
+  }
+  .burger span {
+    position: absolute;
+    left: 9px;
+    width: 22px;
+    height: 1.5px;
+    background: var(--fg);
+    transition: transform 0.4s var(--ease), opacity 0.3s;
+  }
+  .burger span:nth-child(1) {
+    top: 17px;
+  }
+  .burger span:nth-child(2) {
+    top: 23px;
+  }
+  .burger.is-open span:nth-child(1) {
+    transform: translateY(3px) rotate(45deg);
+  }
+  .burger.is-open span:nth-child(2) {
+    transform: translateY(-3px) rotate(-45deg);
+  }
+
+  /* l'attributo hidden deve vincere sul display:flex qui sotto */
+  .mobile[hidden] {
+    display: none;
+  }
+
+  .mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    padding: var(--pad);
+  }
+  .mobile nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .mobile nav a {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 11vw, 3.4rem);
+    line-height: 1.12;
+    animation: rise 0.6s var(--ease) backwards;
+    animation-delay: calc(var(--i) * 0.06s + 0.05s);
+  }
+  .m-lang {
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .links {
+      display: none;
+    }
+    .burger {
+      display: block;
+    }
+    .brand span {
+      display: none;
+    }
+  }
+  @media (min-width: 901px) {
+    .mobile {
+      display: none !important;
+    }
+  }
+</style>

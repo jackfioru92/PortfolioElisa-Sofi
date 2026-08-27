@@ -1,0 +1,56 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="wrap in">
+    <a class="brand" href={lang === 'it' ? '/' : '/en/'}>
+      <img src="/img/logo/se-creative.webp" alt="SE Creative" width="120" height="120" />
+    </a>
+
+    <p class="copy">
+      &copy; {year} SE Creative — {t('footer.rights')}
+    </p>
+
+    <p class="credits">{t('footer.credits')}</p>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--line);
+    padding-block: 2.5rem;
+  }
+  .in {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .brand img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+  }
+  .copy {
+    margin-right: auto;
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+  }
+  .credits {
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+  }
+  @media (max-width: 600px) {
+    .copy {
+      margin-right: 0;
+      width: 100%;
+    }
+  }
+</style>
