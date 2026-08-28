@@ -1,0 +1,29 @@
+[Unit]
+Description=SE Creative — form di contatto del sito
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/python3 /opt/secreative/contact_service.py
+Restart=always
+RestartSec=5
+
+Environment=CONTACT_DEST=info@secreative.it
+Environment=CONTACT_PORT=8010
+Environment=CONTACT_LOG_DIR=/var/lib/secreative
+
+# il servizio deve solo leggere il proprio script e scrivere le richieste
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/secreative
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

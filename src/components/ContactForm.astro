@@ -1,0 +1,366 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<form class="form pre" id="cform" novalidate data-reveal data-reveal-delay="0.1">
+  <h3 class="ft">{t('form.title')}</h3>
+
+  <div class="row">
+    <div class="field">
+      <label for="f-nome">{t('form.nome')} <i>*</i></label>
+      <input id="f-nome" name="nome" type="text" autocomplete="given-name" maxlength="80" required />
+      <small class="err" data-for="nome"></small>
+    </div>
+
+    <div class="field">
+      <label for="f-cognome">{t('form.cognome')} <i>*</i></label>
+      <input
+        id="f-cognome"
+        name="cognome"
+        type="text"
+        autocomplete="family-name"
+        maxlength="80"
+        required
+      />
+      <small class="err" data-for="cognome"></small>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="f-email">{t('form.email')} <i>*</i></label>
+    <input
+      id="f-email"
+      name="email"
+      type="email"
+      inputmode="email"
+      autocomplete="email"
+      maxlength="160"
+      required
+    />
+    <small class="err" data-for="email"></small>
+  </div>
+
+  <div class="field">
+    <label for="f-prov">{t('form.provenienza')}</label>
+    <input
+      id="f-prov"
+      name="provenienza"
+      type="text"
+      maxlength="120"
+      placeholder={t('form.provenienza.hint')}
+    />
+  </div>
+
+  <div class="field">
+    <label for="f-msg">{t('form.messaggio')} <i>*</i></label>
+    <textarea
+      id="f-msg"
+      name="messaggio"
+      rows="5"
+      maxlength="4000"
+      required
+      placeholder={t('form.messaggio.hint')}></textarea>
+    <small class="err" data-for="messaggio"></small>
+  </div>
+
+  {/* campo esca: invisibile a chi legge, lo compilano solo i robot */}
+  <div class="trap" aria-hidden="true">
+    <label for="f-sito">Sito</label>
+    <input id="f-sito" name="sito" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button class="send" type="submit">
+    <span class="lbl">{t('form.invia')}</span>
+    <svg class="spin" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"
+        stroke-linecap="round" stroke-dasharray="42 14"></circle>
+    </svg>
+  </button>
+
+  <p class="msg" id="fmsg" role="status" aria-live="polite"></p>
+
+  <input type="hidden" id="i18n" data-ok-t={t('form.ok.t')} data-ok-d={t('form.ok.d')}
+    data-ko-t={t('form.ko.t')} data-ko-d={t('form.ko.d')} data-req={t('form.obbligatorio')}
+    data-mail={t('form.email.no')} data-short={t('form.corto')} data-send={t('form.invia')}
+    data-sending={t('form.invio')} />
+</form>
+
+<script>
+  const form = document.getElementById('cform') as HTMLFormElement;
+  const out = document.getElementById('fmsg')!;
+  const btn = form.querySelector<HTMLButtonElement>('.send')!;
+  const lbl = btn.querySelector<HTMLElement>('.lbl')!;
+  const T = (document.getElementById('i18n') as HTMLElement).dataset;
+
+  const fieldOf = (name: string) =>
+    form.querySelector<HTMLElement>(`[name="${name}"]`);
+
+  function setErr(name: string, text: string) {
+    const slot = form.querySelector<HTMLElement>(`.err[data-for="${name}"]`);
+    const input = fieldOf(name);
+    if (slot) slot.textContent = text;
+    input?.classList.toggle('bad', !!text);
+    input?.setAttribute('aria-invalid', text ? 'true' : 'false');
+  }
+
+  const clearErrs = () =>
+    ['nome', 'cognome', 'email', 'messaggio'].forEach((n) => setErr(n, ''));
+
+  function validate(d: Record<string, string>) {
+    const bad: string[] = [];
+    for (const k of ['nome', 'cognome', 'email', 'messaggio']) {
+      if (!d[k]) {
+        setErr(k, T.req!);
+        bad.push(k);
+      }
+    }
+    if (d.email && !/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(d.email)) {
+      setErr('email', T.mail!);
+      bad.push('email');
+    }
+    if (d.messaggio && d.messaggio.length < 10) {
+      setErr('messaggio', T.short!);
+      bad.push('messaggio');
+    }
+    return bad;
+  }
+
+  function say(kind: 'ok' | 'ko', title: string, detail: string) {
+    out.className = `msg show ${kind}`;
+    out.innerHTML = `<b></b><span></span>`;
+    out.querySelector('b')!.textContent = title;
+    out.querySelector('span')!.textContent = detail;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrs();
+    out.className = 'msg';
+
+    const fd = new FormData(form);
+    const d: Record<string, string> = {};
+    fd.forEach((v, k) => (d[k] = String(v).trim()));
+
+    const bad = validate(d);
+    if (bad.length) {
+      fieldOf(bad[0])?.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('busy');
+    lbl.textContent = T.sending!;
+
+    try {
+      const r = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(d),
+      });
+      const j = await r.json().catch(() => ({}) as any);
+
+      if (r.ok && j.ok) {
+        form.reset();
+        say('ok', T.okT!, T.okD!);
+      } else if (r.status === 422 && Array.isArray(j.campi)) {
+        j.campi.forEach((c: string) => setErr(c, T.req!));
+        fieldOf(j.campi[0])?.focus();
+        say('ko', T.koT!, T.koD!);
+      } else {
+        say('ko', T.koT!, T.koD!);
+      }
+    } catch {
+      say('ko', T.koT!, T.koD!);
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('busy');
+      lbl.textContent = T.send!;
+    }
+  });
+
+  // togliere l'errore appena si corregge
+  form.querySelectorAll<HTMLInputElement>('input, textarea').forEach((el) =>
+    el.addEventListener('input', () => el.name && setErr(el.name, ''))
+  );
+</script>
+
+<style>
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    padding: clamp(1.5rem, 3.5vw, 2.5rem);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg-card);
+  }
+
+  .ft {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    margin: 0 0 0.25rem;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.15rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  label {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+  label i {
+    color: var(--yellow);
+    font-style: normal;
+  }
+
+  input,
+  textarea {
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.72rem 0.85rem;
+    transition: border-color 0.25s, background 0.25s;
+    width: 100%;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--fg-faint);
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--yellow);
+    background: rgba(255, 255, 255, 0.07);
+  }
+  input.bad,
+  textarea.bad {
+    border-color: #ff6b6b;
+  }
+
+  .err {
+    font-size: 0.75rem;
+    color: #ff8585;
+    min-height: 1em;
+  }
+
+  /* il campo esca non deve essere raggiungibile né visibile */
+  .trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .send {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    border: 0;
+    cursor: pointer;
+    transition: transform 0.25s var(--ease), opacity 0.25s;
+  }
+  .send:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+  .send:disabled {
+    opacity: 0.65;
+    cursor: default;
+  }
+
+  .spin {
+    display: none;
+    animation: turn 0.9s linear infinite;
+  }
+  .send.busy .spin {
+    display: block;
+  }
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .msg {
+    display: none;
+    margin: 0;
+    padding: 0.9rem 1.1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .msg.show {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .msg b {
+    font-weight: 700;
+  }
+  .msg span {
+    color: var(--fg-dim);
+  }
+  .msg.ok {
+    background: rgba(255, 226, 18, 0.1);
+    border: 1px solid rgba(255, 226, 18, 0.35);
+  }
+  .msg.ok b {
+    color: var(--yellow);
+  }
+  .msg.ko {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.35);
+  }
+  .msg.ko b {
+    color: #ff8585;
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spin {
+      animation: none;
+    }
+    .send:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+</style>
