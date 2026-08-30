@@ -1,0 +1,13 @@
+---
+/**
+ * Il portfolio sfogliabile slide per slide, quello che sta online su secreative.it.
+ * Qui resta raggiungibile su /deck mentre la home ospita il sito nuovo.
+ */
+import Base from '../layouts/Base.astro';
+import Deck from '../components/Deck.astro';
+const lang = 'it' as const;
+---
+
+<Base lang={lang}>
+  <Deck lang={lang} />
+</Base>

@@ -1,0 +1,255 @@
+---
+import { reel } from '../../data/studio';
+---
+
+<section class="sezione scura reel" id="reel">
+  <div class="dentro">
+    <header class="testata">
+      <div>
+        <p class="occhiello">Reel &amp; video</p>
+        <h2>Girati, montati, <span class="corsivo">pubblicati.</span></h2>
+      </div>
+      <p class="intro">
+        {reel.length} video verticali prodotti per i profili che seguiamo.
+      </p>
+    </header>
+  </div>
+
+  <ul class="pellicola" id="pellicola">
+    {
+      reel.map((r) => (
+        <li>
+          <button class="clip" data-video={r.video} aria-label={`Guarda il reel per ${r.brand}`}>
+            <img src={r.poster} alt="" width="540" height="960" loading="lazy" decoding="async" />
+            <span class="play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+              </svg>
+            </span>
+            <span class="brand">{r.brand}</span>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<dialog class="teatro" id="teatro" aria-label="Video">
+  <button class="chiudi" id="chiudi" aria-label="Chiudi">&times;</button>
+  <video id="lettore" controls playsinline preload="none"></video>
+</dialog>
+
+<script>
+  const teatro = document.getElementById('teatro') as HTMLDialogElement;
+  const lettore = document.getElementById('lettore') as HTMLVideoElement;
+
+  function ferma() {
+    lettore.pause();
+    lettore.removeAttribute('src');
+    lettore.load();
+    if (teatro.open) teatro.close();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.clip').forEach((b) =>
+    b.addEventListener('click', () => {
+      lettore.src = b.dataset.video!;
+      teatro.showModal();
+      lettore.play().catch(() => {});
+    })
+  );
+
+  document.getElementById('chiudi')!.addEventListener('click', ferma);
+  teatro.addEventListener('click', (e) => e.target === teatro && ferma());
+  teatro.addEventListener('close', ferma);
+
+  /* la striscia si trascina anche col mouse, non solo col dito */
+  const pellicola = document.getElementById('pellicola')!;
+  let giu = false,
+    partenzaX = 0,
+    partenzaScroll = 0;
+
+  pellicola.addEventListener('pointerdown', (e) => {
+    giu = true;
+    partenzaX = e.clientX;
+    partenzaScroll = pellicola.scrollLeft;
+  });
+  pellicola.addEventListener('pointermove', (e) => {
+    if (!giu) return;
+    const d = e.clientX - partenzaX;
+    if (Math.abs(d) > 4) pellicola.setPointerCapture(e.pointerId);
+    pellicola.scrollLeft = partenzaScroll - d;
+  });
+  const su = () => (giu = false);
+  pellicola.addEventListener('pointerup', su);
+  pellicola.addEventListener('pointercancel', su);
+  /* un trascinamento non deve valere come clic sul play */
+  pellicola.addEventListener(
+    'click',
+    (e) => {
+      if (pellicola.hasPointerCapture?.((e as PointerEvent).pointerId)) e.stopPropagation();
+    },
+    true
+  );
+</script>
+
+<style>
+  .reel {
+    background: var(--nero);
+    padding-inline: 0;
+  }
+
+  .reel .dentro {
+    padding-inline: var(--bordo);
+  }
+
+  .testata {
+    display: grid;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .intro {
+    max-width: 26rem;
+    margin: 0;
+    opacity: 0.78;
+  }
+
+  /* ---- la striscia ---- */
+  .pellicola {
+    display: flex;
+    gap: clamp(0.7rem, 1.4vw, 1.1rem);
+    margin: 0;
+    padding: 0 var(--bordo);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(254, 222, 142, 0.35) transparent;
+    cursor: grab;
+  }
+
+  .pellicola:active {
+    cursor: grabbing;
+  }
+
+  .pellicola li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .clip {
+    position: relative;
+    display: block;
+    width: clamp(150px, 20vw, 215px);
+    aspect-ratio: 9 / 16;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1b1b1b;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .clip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    transition: scale 0.5s cubic-bezier(0.22, 0.72, 0.24, 1);
+  }
+
+  .clip:hover img {
+    scale: 1.06;
+  }
+
+  .play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 1.4px solid rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    transition: background 0.28s, color 0.28s, scale 0.28s;
+  }
+
+  .play svg {
+    margin-left: 2px;
+  }
+
+  .clip:hover .play {
+    background: var(--giallo);
+    border-color: var(--giallo);
+    color: var(--nero);
+    scale: 1.08;
+  }
+
+  .brand {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 2.2rem 0.75rem 0.7rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-align: left;
+    line-height: 1.3;
+  }
+
+  /* ---- il video a schermo ---- */
+  .teatro {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(94vw, 420px);
+    max-height: 94vh;
+    overflow: visible;
+  }
+
+  .teatro::backdrop {
+    background: rgba(0, 0, 0, 0.93);
+  }
+
+  .teatro video {
+    width: 100%;
+    max-height: 86vh;
+    border-radius: 10px;
+    background: #000;
+    display: block;
+  }
+
+  .chiudi {
+    position: absolute;
+    top: -2.4rem;
+    right: 0;
+    font-size: 2rem;
+    line-height: 1;
+    color: #fff;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .chiudi:hover {
+    opacity: 1;
+  }
+
+  @media (min-width: 900px) {
+    .testata {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+  }
+</style>

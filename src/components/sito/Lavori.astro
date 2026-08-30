@@ -1,0 +1,197 @@
+---
+import { progetti } from '../../data/studio';
+
+const categorie = ['Tutti', ...new Set(progetti.map((p) => p.categoria))];
+---
+
+<section class="sezione lavori" id="lavori">
+  <div class="dentro">
+    <header class="testata">
+      <div>
+        <p class="occhiello">Lavori scelti</p>
+        <h2>Idee <span class="corsivo">in azione.</span></h2>
+      </div>
+      <p class="intro">
+        Progetti che raccontano idee, brand e persone. Ogni lavoro è un percorso
+        creativo, non solo un risultato.
+      </p>
+    </header>
+
+    <div class="filtri" role="group" aria-label="Filtra i lavori">
+      {
+        categorie.map((c, i) => (
+          <button class:list={['filtro', { on: i === 0 }]} data-cat={c}>
+            {c}
+          </button>
+        ))
+      }
+    </div>
+
+    <ul class="griglia" id="griglia">
+      {
+        progetti.map((p) => (
+          <li class="carta" data-cat={p.categoria}>
+            <article>
+              <div class="foto">
+                <img src={p.img} alt={`${p.titolo} — ${p.progetto}`} loading="lazy" decoding="async" />
+              </div>
+              <div class="riga">
+                <div>
+                  <h3>{p.titolo}</h3>
+                  <p class="meta">{p.tipologia} · {p.progetto}</p>
+                </div>
+                <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <p class="descrizione">{p.testo}</p>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  const filtri = document.querySelectorAll<HTMLButtonElement>('.filtro');
+  const carte = document.querySelectorAll<HTMLElement>('.carta');
+
+  filtri.forEach((b) =>
+    b.addEventListener('click', () => {
+      const cat = b.dataset.cat!;
+      filtri.forEach((x) => x.classList.toggle('on', x === b));
+      carte.forEach((c) => {
+        const dentro = cat === 'Tutti' || c.dataset.cat === cat;
+        c.hidden = !dentro;
+      });
+    })
+  );
+</script>
+
+<style>
+  .lavori {
+    background: var(--giallo);
+  }
+
+  .testata {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: 2.5rem;
+  }
+
+  .intro {
+    max-width: 30rem;
+    margin: 0;
+  }
+
+  /* ---- filtri ---- */
+  .filtri {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 1.75rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 1.5px solid rgba(11, 11, 11, 0.18);
+  }
+
+  .filtro {
+    padding: 0.45rem 1.05rem;
+    border: 1.3px solid rgba(11, 11, 11, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.22s, color 0.22s, border-color 0.22s;
+  }
+
+  .filtro:hover {
+    border-color: var(--nero);
+  }
+
+  .filtro.on {
+    background: var(--nero);
+    border-color: var(--nero);
+    color: var(--giallo);
+  }
+
+  /* ---- griglia ---- */
+  .griglia {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: clamp(1.5rem, 3vw, 2.75rem) clamp(1.25rem, 2.4vw, 2rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .carta[hidden] {
+    display: none;
+  }
+
+  .foto {
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--nero);
+    aspect-ratio: 4 / 3;
+  }
+
+  .foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.55s cubic-bezier(0.22, 0.72, 0.24, 1);
+  }
+
+  .carta:hover .foto img {
+    scale: 1.045;
+  }
+
+  .riga {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.9rem;
+  }
+
+  .riga .freccia {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.25rem;
+    transition: translate 0.28s;
+  }
+
+  .carta:hover .riga .freccia {
+    translate: 3px -3px;
+  }
+
+  .meta {
+    margin: 0.3rem 0 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .descrizione {
+    margin: 0.7rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.62;
+    opacity: 0.85;
+  }
+
+  @media (min-width: 860px) {
+    .testata {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3rem;
+    }
+  }
+</style>
