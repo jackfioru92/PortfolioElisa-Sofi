@@ -1,0 +1,210 @@
+---
+import { studio } from '../../data/studio';
+---
+
+<section class="apertura" id="top">
+  <!-- il marchio gigante sfocato, come nella bozza: è decorativo, non si legge -->
+  <div class="parolona" aria-hidden="true">
+    <span>portf</span><span>olio</span>
+  </div>
+
+  <img
+    class="nastro"
+    src="/img/work/beyond-the-visual.webp"
+    alt=""
+    width="970"
+    height="545"
+    fetchpriority="high"
+    aria-hidden="true"
+  />
+
+  <div class="testo">
+    <p class="occhiello">Creative studio</p>
+    <h1>Diamo forma a brand<br /> che <span class="corsivo">lasciano il segno.</span></h1>
+    <p class="sotto">
+      Siamo {studio.persone}. Brand identity, packaging, social media e video
+      per aziende che vogliono farsi riconoscere.
+    </p>
+    <a class="pill" href="#lavori">
+      Guarda i lavori
+      <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+          stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </a>
+  </div>
+
+  <p class="lato" aria-hidden="true">Shaping<br />ideas<br />beyond<br />the noise</p>
+
+  <a class="giu" href="#lavori">
+    <span class="cerchio">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M8 3v10M3.5 8.5L8 13l4.5-4.5" fill="none" stroke="currentColor"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </span>
+    Scorri
+  </a>
+</section>
+
+<style>
+  .apertura {
+    position: relative;
+    display: grid;
+    /* «safe»: se il contenuto è più alto dello spazio, parte dall'alto invece
+       di traboccare da tutte e due le parti e farsi tagliare la prima riga */
+    align-content: safe center;
+    min-height: min(88vh, 880px);
+    padding: clamp(2rem, 5vw, 4rem) var(--bordo) clamp(4.5rem, 8vw, 7rem);
+    overflow: hidden;
+  }
+
+  /* ---- la parola sfocata ----
+     sta nella metà destra, con un margine suo: deve sfumare ai bordi, non
+     sembrare tagliata via. Le due righe sono allineate a sinistra, come nella
+     bozza, con la seconda rientrata di poco. */
+  .parolona {
+    position: absolute;
+    top: 50%;
+    /* niente larghezza fissa: il blocco si stringe sulla riga più lunga
+       («portf»), così il suo bordo destro resta sempre a filo, qualunque sia
+       lo schermo, e non si formano vuoti */
+    right: 7%;
+    translate: 0 -52%;
+    z-index: 0;
+    display: inline-grid;
+    justify-items: start;
+    font-size: min(14.5vw, 16rem);
+    font-weight: 800;
+    line-height: 0.78;
+    letter-spacing: -0.05em;
+    color: var(--nero);
+    filter: blur(clamp(3px, 0.55vw, 9px));
+    opacity: 0.88;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .parolona span:last-child {
+    margin-left: 0.14em;
+  }
+
+  /* ---- il nastro «Beyond the Visual» ---- */
+  .nastro {
+    position: absolute;
+    z-index: 2;
+    right: calc(var(--bordo) - 0.5rem);
+    bottom: clamp(4.5rem, 13vh, 9rem);
+    width: clamp(190px, 30vw, 430px);
+    height: auto;
+    rotate: -1.5deg;
+    pointer-events: none;
+  }
+
+  /* ---- la colonna di testo ---- */
+  .testo {
+    position: relative;
+    z-index: 3;
+    max-width: 38rem;
+  }
+
+  .sotto {
+    max-width: 25rem;
+    margin: 1.5rem 0 2.2rem;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* più contenuto del titolo generale: qui accanto c'è la parola sfocata e le
+     righe devono restare tre, come nella bozza */
+  h1 {
+    font-size: clamp(2.3rem, 1.1rem + 3.1vw, 3.9rem);
+    text-wrap: initial;
+  }
+
+  /* ---- la colonna verticale a destra ---- */
+  .lato {
+    position: absolute;
+    top: 42%;
+    right: calc(var(--bordo) * 0.35);
+    margin: 0;
+    z-index: 3;
+    font-size: 0.66rem;
+    font-weight: 600;
+    line-height: 1.85;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ---- lo scorri in basso ---- */
+  .giu {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(1.5rem, 4vh, 2.6rem);
+    translate: -50% 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .cerchio {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1.4px solid var(--nero);
+    border-radius: 50%;
+    animation: respiro 2.6s ease-in-out infinite;
+  }
+
+  @keyframes respiro {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 4px;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .lato {
+      display: none;
+    }
+    .parolona {
+      right: 5%;
+      font-size: min(16vw, 10rem);
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .apertura {
+      min-height: auto;
+      padding-top: 2rem;
+    }
+    .parolona {
+      top: auto;
+      bottom: 6.5rem;
+      right: 4%;
+      translate: 0 0;
+      font-size: min(23vw, 8rem);
+      opacity: 0.32;
+    }
+    .nastro {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      width: min(74%, 300px);
+      margin: 2.5rem 0 0;
+    }
+    .giu {
+      display: none;
+    }
+  }
+</style>

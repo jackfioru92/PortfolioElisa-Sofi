@@ -1,0 +1,150 @@
+---
+import { studio, video } from '../../data/studio';
+---
+
+<section class="sezione studio" id="studio">
+  <div class="dentro">
+    <div class="colonne">
+      <div class="testo">
+        <p class="occhiello">Studio</p>
+        <h2>Sofia <span class="barretta">|</span> <span class="corsivo">Elisa.</span></h2>
+        <p class="claim">{studio.claim}</p>
+        {studio.racconto.map((p) => <p class="par">{p}</p>)}
+
+        <ul class="ruoli">
+          {studio.ruoli.map((r) => <li>{r}</li>)}
+        </ul>
+      </div>
+
+      <figure class="visivo">
+        <img
+          src="/img/deck/s05.webp"
+          alt="Una selezione di creative visual dello studio: Umbria Jazz, MaMo New York, Copper Magazine"
+          width="2200"
+          height="1238"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption>Creative visual &amp; manipulation design</figcaption>
+      </figure>
+    </div>
+
+    <p class="manifesto">{studio.manifesto}</p>
+
+    <div class="clienti">
+      <p class="occhiello">Hanno lavorato con noi</p>
+      <ul>
+        {video.map((v) => <li>{v}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio {
+    background: var(--giallo-chiaro);
+  }
+
+  .colonne {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  .claim {
+    max-width: 26rem;
+    margin: 1.5rem 0 1.75rem;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.15rem, 1rem + 0.7vw, 1.5rem);
+    line-height: 1.4;
+    color: var(--lampone);
+  }
+
+  .par {
+    max-width: 34rem;
+    margin: 0 0 1rem;
+    opacity: 0.86;
+  }
+
+  .barretta {
+    color: var(--fucsia);
+    font-weight: 400;
+  }
+
+  .ruoli {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ruoli li {
+    padding: 0.4rem 0.9rem;
+    border: 1.2px solid rgba(11, 11, 11, 0.3);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .visivo {
+    margin: 0;
+  }
+
+  .visivo img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+
+  figcaption {
+    margin-top: 0.8rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .manifesto {
+    margin: clamp(3rem, 6vw, 5rem) 0 0;
+    font-size: clamp(1.6rem, 1rem + 2.6vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .clienti {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.75rem;
+    border-top: 1.5px solid rgba(11, 11, 11, 0.18);
+  }
+
+  .clienti ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.15rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  @media (min-width: 900px) {
+    .colonne {
+      grid-template-columns: 1fr 0.95fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+    }
+    .visivo {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+</style>

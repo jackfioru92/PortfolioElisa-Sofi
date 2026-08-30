@@ -1,0 +1,218 @@
+---
+const voci = [
+  { label: 'Lavori', href: '#lavori' },
+  { label: 'Reel', href: '#reel' },
+  { label: 'Servizi', href: '#servizi' },
+  { label: 'Studio', href: '#studio' },
+  { label: 'Contatti', href: '#contatti' },
+];
+---
+
+<header class="barra" id="barra">
+  <a class="marchio" href="#top" aria-label="SE Creative, torna in cima">
+    <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563" />
+  </a>
+
+  <nav class="voci" aria-label="Sezioni">
+    {voci.map((v) => <a href={v.href}>{v.label}</a>)}
+  </nav>
+
+  <a class="pill" href="#contatti">
+    Iniziamo un progetto
+    <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </a>
+
+  <button class="menu" id="menu" aria-expanded="false" aria-controls="tendina" aria-label="Sezioni">
+    <span></span><span></span>
+  </button>
+</header>
+
+<div class="tendina" id="tendina" hidden>
+  {voci.map((v) => <a href={v.href}>{v.label}</a>)}
+  <a href="#contatti" class="ev">Iniziamo un progetto</a>
+</div>
+
+<script>
+  const barra = document.getElementById('barra')!;
+  const menu = document.getElementById('menu')!;
+  const tendina = document.getElementById('tendina')!;
+
+  /* la barra si stacca dallo sfondo appena si scorre */
+  const sentinella = document.createElement('div');
+  sentinella.style.cssText = 'position:absolute;top:0;height:1px;width:1px';
+  document.body.prepend(sentinella);
+  new IntersectionObserver(
+    ([e]) => barra.classList.toggle('staccata', !e.isIntersecting)
+  ).observe(sentinella);
+
+  function chiudi() {
+    tendina.hidden = true;
+    menu.setAttribute('aria-expanded', 'false');
+  }
+
+  menu.addEventListener('click', () => {
+    const aperta = !tendina.hidden;
+    tendina.hidden = aperta;
+    menu.setAttribute('aria-expanded', String(!aperta));
+  });
+
+  tendina.querySelectorAll('a').forEach((a) => a.addEventListener('click', chiudi));
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && chiudi());
+
+  /* la voce della sezione che si sta guardando resta accesa */
+  const link = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('.barra .voci a').forEach((a) =>
+    link.set(a.getAttribute('href')!.slice(1), a)
+  );
+
+  const osservatore = new IntersectionObserver(
+    (voci) => {
+      for (const v of voci) {
+        if (v.isIntersecting) {
+          link.forEach((a) => a.classList.remove('qui'));
+          link.get(v.target.id)?.classList.add('qui');
+        }
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px' }
+  );
+  link.forEach((_, id) => {
+    const s = document.getElementById(id);
+    if (s) osservatore.observe(s);
+  });
+</script>
+
+<style>
+  .barra {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem var(--bordo);
+    background: var(--giallo);
+    transition: box-shadow 0.3s, background 0.3s;
+  }
+
+  .barra.staccata {
+    box-shadow: 0 1px 0 rgba(11, 11, 11, 0.14);
+  }
+
+  .marchio {
+    display: block;
+    flex: none;
+  }
+
+  .marchio img {
+    width: auto;
+    height: clamp(30px, 3.4vw, 42px);
+  }
+
+  .voci {
+    display: flex;
+    gap: clamp(1rem, 2.6vw, 2.6rem);
+    margin-inline: auto;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .voci a {
+    position: relative;
+    padding: 0.3rem 0;
+    opacity: 0.72;
+    transition: opacity 0.25s;
+  }
+
+  .voci a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.5px;
+    background: currentColor;
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale 0.3s;
+  }
+
+  .voci a:hover,
+  .voci a.qui {
+    opacity: 1;
+  }
+
+  .voci a:hover::after,
+  .voci a.qui::after {
+    scale: 1 1;
+  }
+
+  .barra .pill {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.7rem;
+  }
+
+  .menu {
+    display: none;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    place-items: center;
+    gap: 5px;
+  }
+
+  .menu span {
+    display: block;
+    width: 20px;
+    height: 1.8px;
+    background: var(--nero);
+  }
+
+  .tendina {
+    position: sticky;
+    top: 4.1rem;
+    z-index: 29;
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.6rem var(--bordo) 1.4rem;
+    background: var(--giallo);
+    box-shadow: 0 14px 20px -12px rgba(11, 11, 11, 0.3);
+  }
+
+  .tendina a {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(11, 11, 11, 0.14);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .tendina a.ev {
+    border: 0;
+    color: var(--lampone);
+  }
+
+  @media (max-width: 900px) {
+    .barra .pill,
+    .voci {
+      display: none;
+    }
+    .menu {
+      display: grid;
+      margin-left: auto;
+    }
+  }
+
+  @media (min-width: 901px) {
+    .tendina {
+      display: none;
+    }
+  }
+</style>

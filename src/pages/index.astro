@@ -1,9 +1,29 @@
 ---
-import Base from '../layouts/Base.astro';
-import Deck from '../components/Deck.astro';
-const lang = 'it' as const;
+import Sito from '../layouts/Sito.astro';
+import Barra from '../components/sito/Barra.astro';
+import Apertura from '../components/sito/Apertura.astro';
+import Lavori from '../components/sito/Lavori.astro';
+import Reel from '../components/sito/Reel.astro';
+import Numeri from '../components/sito/Numeri.astro';
+import Servizi from '../components/sito/Servizi.astro';
+import Studio from '../components/sito/Studio.astro';
+import Contatti from '../components/sito/Contatti.astro';
+import Chiusura from '../components/sito/Chiusura.astro';
 ---
 
-<Base lang={lang}>
-  <Deck lang={lang} />
-</Base>
+<Sito
+  titolo="SE Creative — Studio creativo a Perugia"
+  descrizione="Sofia Ercolani ed Elisa Zetti: brand identity, packaging, social media strategy e video per aziende e brand in Umbria e non solo."
+>
+  <Barra />
+  <main>
+    <Apertura />
+    <Lavori />
+    <Reel />
+    <Numeri />
+    <Servizi />
+    <Studio />
+    <Contatti />
+  </main>
+  <Chiusura />
+</Sito>

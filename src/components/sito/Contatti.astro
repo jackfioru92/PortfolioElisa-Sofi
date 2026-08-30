@@ -1,0 +1,263 @@
+---
+import { studio } from '../../data/studio';
+
+const wa = `https://wa.me/${studio.whatsapp}?text=${encodeURIComponent(studio.messaggioWhatsapp)}`;
+const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null;
+---
+
+<section class="sezione contatti" id="contatti">
+  <div class="dentro colonne">
+    <div>
+      <p class="occhiello">Contatti</p>
+      <img
+        class="nastro"
+        src="/img/work/lets-connect.webp"
+        alt="Let's connect"
+        width="842"
+        height="452"
+        loading="lazy"
+      />
+      <p class="invito">
+        Raccontaci il tuo progetto, la tua idea o semplicemente la tua curiosità.
+        Siamo qui per ascoltarti.
+      </p>
+
+      <ul class="recapiti">
+        <li>
+          <a href={`mailto:${studio.email}`}>{studio.email}</a>
+        </li>
+        <li>
+          <a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a>
+        </li>
+        <li><span>{studio.luogo}</span></li>
+      </ul>
+
+      <div class="social">
+        <a class="pill vuoto" href={wa} target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+            <path
+              d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linejoin="round"></path>
+            <path
+              d="M8.5 7.7c.3 0 .5 0 .7.4l.8 1.7c.1.3 0 .5-.1.7l-.5.6c-.2.2-.2.4 0 .7a7 7 0 003 2.7c.3.1.5.1.7-.1l.6-.6c.2-.2.4-.2.7-.1l1.7.8c.3.2.4.3.4.6 0 1-.8 1.9-1.8 2-1.5.1-3.7-1-5.3-2.6S6.6 10.9 6.6 9.4c0-1 .9-1.7 1.9-1.7z"
+              fill="currentColor"></path>
+          </svg>
+          Scrivici su WhatsApp
+        </a>
+
+        {
+          ig && (
+            <a class="pill vuoto" href={ig} target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" fill="none"
+                  stroke="currentColor" stroke-width="1.7" />
+                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
+                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" />
+              </svg>
+              Instagram
+            </a>
+          )
+        }
+      </div>
+    </div>
+
+    <form class="modulo" id="modulo">
+      <label>
+        <span>Nome<i>*</i></span>
+        <input type="text" name="nome" required autocomplete="name" />
+      </label>
+      <label>
+        <span>Email<i>*</i></span>
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>
+        <span>Messaggio<i>*</i></span>
+        <textarea name="messaggio" rows="5" required></textarea>
+      </label>
+      <p class="errore" id="errore" hidden></p>
+      <button class="pill" type="submit">
+        Invia messaggio
+        <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <p class="nota">
+        Il tasto apre il tuo programma di posta con il messaggio già scritto.
+      </p>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ destinatario: studio.email }}>
+  const modulo = document.getElementById('modulo');
+  const errore = document.getElementById('errore');
+
+  modulo.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const d = new FormData(modulo);
+    const nome = String(d.get('nome') || '').trim();
+    const email = String(d.get('email') || '').trim();
+    const testo = String(d.get('messaggio') || '').trim();
+
+    if (!nome || !email || !testo) {
+      errore.textContent = 'Compila nome, email e messaggio.';
+      errore.hidden = false;
+      return;
+    }
+    errore.hidden = true;
+
+    // il sito è statico: non c'è nessun server a cui inviare, si passa la palla
+    // al programma di posta di chi scrive
+    const oggetto = `Nuovo progetto — ${nome}`;
+    const corpo = `${testo}\n\n—\n${nome}\n${email}`;
+    location.href =
+      `mailto:${destinatario}?subject=${encodeURIComponent(oggetto)}` +
+      `&body=${encodeURIComponent(corpo)}`;
+  });
+
+  modulo.querySelectorAll('input, textarea').forEach((c) =>
+    c.addEventListener('input', () => (errore.hidden = true))
+  );
+</script>
+
+<style>
+  .contatti {
+    background: var(--giallo);
+  }
+
+  .colonne {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .nastro {
+    width: min(100%, 340px);
+    height: auto;
+    margin: 0 0 1.75rem -0.5rem;
+    rotate: -1deg;
+  }
+
+  .invito {
+    max-width: 26rem;
+    margin: 0 0 2rem;
+  }
+
+  .recapiti {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .recapiti li {
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .recapiti a {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.3s;
+  }
+
+  .recapiti a:hover {
+    background-size: 0% 1.5px;
+  }
+
+  .recapiti li:last-child {
+    font-weight: 500;
+    font-size: 0.95rem;
+    opacity: 0.65;
+  }
+
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+
+  .social .pill {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.72rem;
+  }
+
+  /* ---- modulo ---- */
+  .modulo {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .modulo label {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .modulo span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .modulo i {
+    font-style: normal;
+    color: var(--lampone);
+  }
+
+  .modulo input,
+  .modulo textarea {
+    padding: 0.7rem 0;
+    border: 0;
+    border-bottom: 1.5px solid rgba(11, 11, 11, 0.35);
+    background: transparent;
+    font-size: 1rem;
+    transition: border-color 0.25s;
+  }
+
+  .modulo textarea {
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid rgba(11, 11, 11, 0.35);
+    border-radius: 10px;
+    resize: vertical;
+  }
+
+  .modulo input:focus,
+  .modulo textarea:focus {
+    outline: none;
+    border-color: var(--nero);
+  }
+
+  .modulo .pill {
+    justify-self: start;
+  }
+
+  .errore {
+    margin: -0.6rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #9c1d1d;
+  }
+
+  .nota {
+    margin: -0.4rem 0 0;
+    font-size: 0.78rem;
+    opacity: 0.62;
+  }
+
+  @media (min-width: 900px) {
+    .colonne {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

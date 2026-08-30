@@ -1,0 +1,125 @@
+---
+import { numeri, beyond } from '../../data/studio';
+---
+
+<section class="sezione scura numeri" id="numeri">
+  <div class="dentro">
+    <header class="testata">
+      <div>
+        <p class="occhiello">Social media</p>
+        <h2>Non solo <span class="corsivo">contenuti.</span></h2>
+      </div>
+      <div class="racconto">
+        {beyond.slice(0, 2).map((p) => <p>{p}</p>)}
+      </div>
+    </header>
+
+    <ul class="tabellone">
+      {
+        numeri.map((n) => (
+          <li>
+            <p class="brand">{n.brand}</p>
+            <p class="salto">
+              <span class="da">{n.da}</span>
+              <svg viewBox="0 0 24 16" aria-hidden="true" class="verso">
+                <path d="M1 8h20M15 2l6 6-6 6" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="a">{n.a}</span>
+            </p>
+            <p class="periodo">follower {n.periodo}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .numeri {
+    background: var(--nero);
+  }
+
+  .testata {
+    display: grid;
+    gap: 1.75rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .racconto p {
+    max-width: 34rem;
+    margin: 0 0 0.9rem;
+    opacity: 0.78;
+  }
+
+  .racconto p:last-child {
+    margin-bottom: 0;
+  }
+
+  .tabellone {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid rgba(254, 222, 142, 0.22);
+  }
+
+  .tabellone li {
+    padding: 1.75rem 1.5rem 1.75rem 0;
+    border-bottom: 1px solid rgba(254, 222, 142, 0.22);
+  }
+
+  .brand {
+    margin: 0 0 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.62;
+    min-height: 2.6em;
+  }
+
+  .salto {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  .da {
+    font-size: 1.35rem;
+    opacity: 0.45;
+  }
+
+  .verso {
+    width: 1.5rem;
+    height: 1rem;
+    align-self: center;
+    color: var(--giallo);
+    flex: none;
+  }
+
+  .a {
+    font-size: clamp(2.4rem, 1.4rem + 2.6vw, 3.4rem);
+    color: var(--giallo);
+  }
+
+  .periodo {
+    margin: 0.7rem 0 0;
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  @media (min-width: 900px) {
+    .testata {
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: end;
+    }
+  }
+</style>

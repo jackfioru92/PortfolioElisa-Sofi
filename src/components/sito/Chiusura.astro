@@ -1,0 +1,69 @@
+---
+import { studio } from '../../data/studio';
+
+const wa = `https://wa.me/${studio.whatsapp}`;
+const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null;
+---
+
+<footer class="chiusura">
+  <div class="dentro">
+    <a class="marchio" href="#top" aria-label="SE Creative, torna in cima">
+      <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563"
+        loading="lazy" />
+    </a>
+
+    <div class="recapiti">
+      <a href={`mailto:${studio.email}`}>{studio.email}</a>
+      <a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a>
+      <a href={wa} target="_blank" rel="noopener">WhatsApp</a>
+      {ig && <a href={ig} target="_blank" rel="noopener">Instagram</a>}
+    </div>
+
+    <p class="firma">
+      Portfolio {studio.anno} — {studio.persone}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .chiusura {
+    padding: 1.5rem var(--bordo);
+    background: var(--giallo);
+    border-top: 1.5px solid rgba(11, 11, 11, 0.2);
+  }
+
+  .dentro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+  }
+
+  .marchio img {
+    width: auto;
+    height: 34px;
+  }
+
+  .recapiti {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .recapiti a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .firma {
+    margin: 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+</style>

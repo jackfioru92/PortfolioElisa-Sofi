@@ -1,0 +1,206 @@
+/**
+ * Il sito «giallo»: stile della bozza del cliente, colori presi dalle slide
+ * vere del Keynote (campionati da s01, s07, s12, s36).
+ */
+
+:root {
+  --giallo: #fab415;
+  --giallo-chiaro: #fede8e;
+  --nero: #0b0b0b;
+  --nero-morbido: #16150f;
+  --fucsia: #ec18e6;
+  --lampone: #c2185b;
+  --bianco: #fffdf7;
+
+  --sans: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --serif: 'Bodoni Moda', Georgia, 'Times New Roman', serif;
+
+  /* larghezza utile: la bozza tiene margini generosi */
+  --bordo: clamp(1.25rem, 5vw, 5rem);
+  --max: 1440px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* la barra in alto non deve coprire il titolo di sezione */
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--giallo);
+  color: var(--nero);
+  font-family: var(--sans);
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--nero);
+  color: var(--giallo);
+}
+
+:focus-visible {
+  outline: 2px solid var(--nero);
+  outline-offset: 3px;
+}
+
+/* ---------- tipografia ---------- */
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 1.4rem + 5.2vw, 5.4rem);
+}
+
+h2 {
+  font-size: clamp(2.1rem, 1.2rem + 3.6vw, 4rem);
+}
+
+h3 {
+  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+/* la parola in corsivo serif: è la firma della bozza */
+.corsivo {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--lampone);
+  letter-spacing: -0.02em;
+}
+
+.occhiello {
+  margin: 0 0 1.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
+
+/* ---------- impaginato ---------- */
+
+.sezione {
+  padding: clamp(4rem, 9vw, 8.5rem) var(--bordo);
+}
+
+.dentro {
+  max-width: var(--max);
+  margin-inline: auto;
+}
+
+.scura {
+  background: var(--nero);
+  color: var(--giallo-chiaro);
+}
+
+.scura .occhiello {
+  color: var(--giallo);
+  opacity: 1;
+}
+
+.scura .corsivo {
+  color: var(--giallo);
+}
+
+/* ---------- pulsanti ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.6rem;
+  border: 1.5px solid var(--nero);
+  border-radius: 999px;
+  background: var(--nero);
+  color: var(--giallo);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+
+.pill:hover {
+  background: transparent;
+  color: var(--nero);
+  transform: translateY(-2px);
+}
+
+.pill.vuoto {
+  background: transparent;
+  color: var(--nero);
+}
+
+.pill.vuoto:hover {
+  background: var(--nero);
+  color: var(--giallo);
+}
+
+.scura .pill {
+  background: var(--giallo);
+  border-color: var(--giallo);
+  color: var(--nero);
+}
+
+.scura .pill:hover {
+  background: transparent;
+  color: var(--giallo);
+}
+
+/* la freccia ↗ dei pulsanti e dei link */
+.freccia {
+  width: 0.85em;
+  height: 0.85em;
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

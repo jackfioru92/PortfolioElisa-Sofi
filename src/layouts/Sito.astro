@@ -1,0 +1,66 @@
+---
+import '@fontsource-variable/manrope';
+import '@fontsource/bodoni-moda/latin-500-italic.css';
+import '../styles/sito.css';
+import { studio } from '../data/studio';
+
+interface Props {
+  titolo: string;
+  descrizione: string;
+}
+const { titolo, descrizione } = Astro.props;
+
+const site = 'https://secreative.it';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: studio.nome,
+  description: descrizione,
+  url: site,
+  email: studio.email,
+  telephone: studio.telefonoRaw,
+  image: `${site}/img/logo/se-creative.png`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Perugia',
+    addressRegion: 'Umbria',
+    addressCountry: 'IT',
+  },
+  founder: [
+    { '@type': 'Person', name: 'Sofia Ercolani' },
+    { '@type': 'Person', name: 'Elisa Zetti' },
+  ],
+  sameAs: [`https://instagram.com/${studio.instagram}`],
+};
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titolo}</title>
+    <meta name="description" content={descrizione} />
+    <link rel="canonical" href={`${site}/`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={studio.nome} />
+    <meta property="og:title" content={titolo} />
+    <meta property="og:description" content={descrizione} />
+    <meta property="og:url" content={`${site}/`} />
+    <meta property="og:image" content={`${site}/img/deck/s01.webp`} />
+    <meta property="og:locale" content="it_IT" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#fab415" />
+    <link rel="icon" href="/img/logo/icon-512.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/img/logo/apple-touch-icon.png" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>
