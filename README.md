@@ -1,8 +1,8 @@
-# secreative.it — Portfolio 2026
+# secreative.it — SE Creative
 
-Il portfolio Keynote di **SE Creative** (Elisa Zetti e Sofia Ercolani) riprodotto
-sul web: **36 schermate intere che avanzano al click**, esattamente come la
-presentazione originale.
+Il sito di **SE Creative** — Sofia Ercolani ed Elisa Zetti, studio creativo di
+Perugia. Una pagina sola, in italiano e in inglese, nello stile giallo-nero-fucsia
+del loro Keynote.
 
 Online su **https://secreative.it**
 
@@ -10,55 +10,92 @@ Online su **https://secreative.it**
 
 ## L'idea
 
-Il design non è stato reinterpretato: le slide sono **le slide del Keynote**,
-esportate una per una. L'unica aggiunta è la barra in alto — sezioni e lingua —
-che sparisce da sola dopo qualche secondo per non rubare spazio.
+Il design arriva da una bozza del cliente; i **contenuti** arrivano tutti dal loro
+Keynote «Portfolio 2026», letto slide per slide. Non c'è testo inventato: dove
+serviva sapere qualcosa, la risposta era in una slide.
+
+| La sezione | Viene dalla slide |
+|---|---|
+| I quattro servizi | 3, l'elenco `CONTENTS` |
+| Chi siamo, ruoli, manifesto | 4 |
+| «Non solo contenuti» | 7, il pezzo *Beyond the Visual* |
+| La crescita dei profili | 8 |
+| I sette progetti | 13–21 |
+| I reel | 23–35 |
+| Contatti | 36 |
+
+Anche i **colori** sono campionati dalle slide, non presi a occhio: giallo
+`#FAB415`, fucsia `#EC18E6`, crema `#FEDE8E`, nero `#0B0B0B`. Il lettering
+*Beyond the Visual* e *Let's Connect* è ritagliato e scontornato dalle slide vere,
+non ridisegnato.
 
 | | |
 |---|---|
-| **Slide** | 36, esportate da Keynote a 2560px e servite in WebP a 2200px |
-| **Video** | 21, estratti dal file `.key` originale (780 MB → 125 MB) |
-| **Peso pagina** | ~50 KB di HTML + la slide che stai guardando |
+| **Peso pagina** | ~42 KB di HTML + 25 KB di CSS |
+| **Progetti** | 7, filtrabili per categoria |
+| **Reel** | 21 video verticali 720×1280 |
+| **JavaScript** | nessuna libreria: le animazioni sono CSS |
 
 ---
 
-## Come si sfoglia
+## Gli indirizzi
 
-| Azione | Comando |
+| Indirizzo | Cosa c'è |
 |---|---|
-| Avanti | click a destra · `→` · `spazio` · rotellina giù · swipe |
-| Indietro | click nel quarto sinistro · `←` · rotellina su · swipe |
-| Prima / ultima | `Home` / `End` |
-| Schermo intero | `F` o l'icona nella barra |
-| Andare a una slide | click sui trattini in basso, o le sezioni nella barra |
-| Link diretto | `secreative.it/#24` apre la slide 24 |
+| `/` | il sito, in italiano |
+| `/en/` | il sito, in inglese |
+| `/deck` | il portfolio sfogliabile slide per slide |
+| `/en/deck` | lo stesso, con i comandi in inglese |
 
-Le sezioni nella barra riportano alla slide da cui quella parte comincia, e si
-illuminano da sole mentre si sfoglia.
-
----
-
-## I video
-
-Le slide 24, 26, 28, 30, 32, 34 e 35 mostrano tre filmati affiancati. Su ognuno
-c'è un **tasto play**: il video si apre a schermo e parte **solo quando lo premi**.
-Nessun filmato parte da solo. Cambiando slide, l'eventuale video in corso si ferma.
-
-L'abbinamento fra colonne e file è in cima a `src/components/Deck.astro`
-(`VIDEO_SLIDES`): è stato ricavato confrontando i fotogrammi di ogni filmato con
-le tre colonne di ogni slide.
+Il **deck** è il sito precedente: 36 schermate intere che avanzano al click,
+esattamente come la presentazione originale. Non è stato buttato, è solo
+scivolato da `/` a `/deck`.
 
 ---
 
 ## Le due lingue
 
-Lo **switch IT / EN** cambia l'interfaccia: nomi delle sezioni, comandi, titolo
-della pagina e descrizione per Google.
+Il selettore **IT / EN** sta nella barra e nel menu del telefono. Cambia tutto il
+testo: titoli, navigazione, schede dei progetti, form, perfino il messaggio
+precompilato di WhatsApp.
 
-> ⚠️ **Le slide restano identiche** nelle due lingue: sono le immagini del
-> Keynote, che è uno solo. Per avere il portfolio anche in inglese servirebbe una
-> seconda versione del Keynote; a quel punto basta esportarla in
-> `public/img/deck-en/` e cambiare il percorso in `Deck.astro`.
+I testi stanno in `src/data/testi.ts`, nelle due lingue. Quelli che la lingua non
+cambia — recapiti, immagini, numeri dei follower, video — stanno in
+`src/data/studio.ts`.
+
+> Il tipo dell'inglese è ricavato da quello italiano. Se aggiungi una voce e ti
+> scordi la traduzione, **il build si ferma**: non pubblica un buco.
+
+Le due lingue montano lo stesso componente `Pagina.astro`, quindi una modifica
+all'impaginato vale per entrambe.
+
+> ⚠️ Le **slide del deck restano in italiano** anche su `/en/deck`: sono le
+> immagini di un Keynote solo. Cambiano soltanto i comandi.
+
+---
+
+## I reel
+
+I 21 video sono quelli estratti dal `.key` originale, tutti verticali 720×1280
+come escono da Instagram. Nella striscia si vedono i **fermo-immagine**: il video
+si scarica solo quando premi play, e chiudendolo la sorgente si svuota per non
+lasciarlo a scaricare in sottofondo.
+
+L'abbinamento fra file e cliente sta in `src/data/studio.ts` (`perCliente`), ed
+era stato ricavato a suo tempo confrontando i fotogrammi con le tre colonne di
+ogni slide.
+
+---
+
+## Il form dei contatti
+
+Il tasto **apre il programma di posta** di chi scrive, con il messaggio già
+composto. Il sito è statico — nginx serve dei file, non gira nessun processo —
+quindi non c'è nessun server a cui inviare.
+
+Per riceverli davvero via email serve un servizio esterno (Formspree, Web3Forms
+o simili): si cambia il gestore del `submit` in `src/components/sito/Contatti.astro`
+e si toglie la nota sotto al pulsante.
 
 ---
 
@@ -70,8 +107,11 @@ cp deploy.env.example deploy.env     # la prima volta, poi compilalo
 
 npm run dev      # anteprima locale su http://localhost:4321
 npm run build    # genera dist/
-./deploy.sh      # build + pubblicazione sul server
+./deploy.sh      # build + pubblicazione (da Mac/Linux)
 ```
+
+Serve **Node** installato. Astro 7 avvia il dev server come processo staccato: il
+comando esce subito ma il server resta vivo, si ferma con `npx astro dev stop`.
 
 ---
 
@@ -79,40 +119,61 @@ npm run build    # genera dist/
 
 ```
 src/
-  i18n/ui.ts             ← testi dell'interfaccia + elenco delle sezioni
-  components/
-    Deck.astro           ← il visualizzatore: slide, comandi, video
-    DeckNav.astro        ← barra in alto: sezioni, lingua, schermo intero
-  layouts/Base.astro     ← head, SEO, dati per i motori di ricerca
+  data/
+    studio.ts            ← recapiti, immagini, numeri, video (non cambiano lingua)
+    testi.ts             ← tutti i testi, IT ed EN
+  components/sito/
+    Pagina.astro         ← monta le sezioni; le due lingue usano questa
+    Barra.astro          ← barra in alto, selettore IT/EN, menu del telefono
+    Apertura.astro       ← titolo, parola sfocata, nastro «Beyond the Visual»
+    Lavori.astro         ← i sette progetti, con i filtri
+    Reel.astro           ← la striscia dei 21 video verticali
+    Numeri.astro         ← la crescita dei profili seguiti
+    Servizi.astro  Studio.astro  Contatti.astro  Chiusura.astro
+  layouts/Sito.astro     ← head, SEO, hreflang, dati per i motori di ricerca
+  styles/sito.css        ← colori del brand e stili comuni
   pages/
-    index.astro          ← italiano  (/)
-    en/index.astro       ← inglese   (/en/)
+    index.astro          ← /        (italiano)
+    en/index.astro       ← /en/     (inglese)
+    deck.astro           ← /deck
+    en/deck.astro        ← /en/deck
+
+  i18n/ui.ts             ← testi del DECK (voce a parte, non del sito)
+  components/Deck.astro  ← il visualizzatore delle slide
+  components/DeckNav.astro
+  layouts/Base.astro     ← head del deck
+
 public/
-  img/deck/              ← s01…s36 (piene) e s01@sm… (leggere, per il precarico)
+  img/deck/              ← s01…s36 (piene) e s01@sm… (leggere)
+  img/reel/              ← i fermo-immagine dei 21 video
+  img/work/              ← ritagli dei progetti e i due lettering scontornati
+  img/logo/              ← marchio originale + versioni nera e bianca
   video/                 ← v733…v830.mp4
-  img/logo/              ← marchio e favicon
 ```
 
-### Cambiare le sezioni della barra
+### Rifare le immagini derivate
 
-In `src/i18n/ui.ts`, in fondo:
+Alcuni file in `public/img/` sono ricavati da altri. Se cambiano gli originali,
+vanno rigenerati:
 
-```ts
-export const sections = [
-  { key: 'sec.start', slide: 1 },
-  { key: 'sec.about', slide: 4 },
-];
-```
+| File | Da dove | Come |
+|---|---|---|
+| `logo/se-creative-{nero,bianco}.webp` | `logo/se-creative.png` | ricolorati e ritagliati con `sharp` |
+| `work/{forma,interni,rampa,facchini}.webp` | slide 21 | ritagli dei quattro riquadri |
+| `work/beyond-the-visual.webp` | slide 7 | ritaglio con sfondo crema scontornato |
+| `work/lets-connect.webp` | slide 36 | ritaglio con sfondo giallo scontornato |
+| `img/reel/*.webp` | `video/*.mp4` | `ffmpeg -ss 1 -frames:v 1 -vf scale=540:-2` |
 
-Il numero è la slide da cui la sezione riparte. I nomi si traducono più sopra,
-nello stesso file.
+Il logo originale è **bianco su trasparente**, pensato per fondo scuro: su giallo
+sparirebbe. Per questo esiste la versione nera, con il pallino ricolorato in
+fucsia.
 
 ### Rifare le slide dopo una modifica al Keynote
 
 1. Da Keynote: *File → Esporta → PDF*, qualità migliore
 2. Renderizzare le pagine a 2560px e convertirle in WebP nelle due misure
    (`s##.webp` a 2200px, `s##@sm.webp` a 1100px), in `public/img/deck/`
-3. `./deploy.sh`
+3. Ripubblicare
 
 Se cambia il **numero** di slide, aggiornare `TOTAL_SLIDES` in `src/i18n/ui.ts`.
 
@@ -130,7 +191,40 @@ file:   /var/www/secreative
 I dati di accesso stanno in `deploy.env`, che **non** è pubblicato su GitHub.
 
 Il sito è statico: nginx serve dei file, non gira nessun processo. Convive con
-gli altri siti già presenti sulla macchina senza interferire.
+gli altri siti già presenti sulla macchina senza interferire. **La pubblicazione
+non tocca nginx**: scrive soltanto dentro `/var/www/secreative`.
+
+### Pubblicare da Mac o Linux
+
+```bash
+./deploy.sh
+```
+
+### Pubblicare da Windows
+
+`deploy.sh` non funziona: manca `sshpass`, e `scp`/`ssh` si bloccano sui prompt
+della password. Serve fare i due passi a mano.
+
+```powershell
+npm run build
+cd dist; tar --no-xattrs -czf $env:TEMP\secreative-dist.tgz .
+cd $env:TEMP; scp .\secreative-dist.tgz debian@IP:/tmp/
+scp .\deploy-remoto.sh debian@IP:/tmp/          # la prima volta
+ssh -t debian@IP 'sudo bash /tmp/deploy-remoto.sh'
+```
+
+> **Perché uno script e non un comando lungo.** Passando lo script fra virgolette,
+> PowerShell toglie quelle interne e `ssh` riunisce gli argomenti con degli spazi:
+> al server arriva `sudo bash -c set` e **tutto il resto gira senza sudo**. I
+> comandi falliscono uno per uno e il pacchetto in `/tmp` viene comunque
+> cancellato. Con un file non c'è niente da citare.
+
+`deploy-remoto.sh` controlla di girare come root e che il pacchetto contenga
+abbastanza file: se qualcosa non torna si ferma **prima** dello scambio, e il sito
+online resta quello di prima.
+
+Lo scambio è atomico — scompatta in `secreative.new`, poi sposta — quindi il sito
+non resta mai a metà.
 
 ### HTTPS
 
@@ -146,15 +240,19 @@ automatico.
 
 ---
 
-## Il primo sito è conservato
+## Le versioni precedenti sono conservate
 
-Prima del deck era stato fatto un **portfolio one-page scuro** con animazioni allo
-scroll (GSAP + Lenis). È stato scartato perché il design doveva restare quello del
-Keynote, ma non è andato perso: vive nel branch **`sito-nero`**, anche su GitHub.
+Niente è andato perso: ogni versione del sito ha il suo tag.
 
-Provato il 27/08/2026: si ricostruisce senza modifiche, immagini comprese.
+| Tag | Cos'era |
+|---|---|
+| `v2-deck` | il portfolio sfogliabile, online fino al 30/08/2026 |
+| `v1-sito-nero` | il primo tentativo: one-page scuro, GSAP + Lenis |
 
-### Guardarlo senza toccare niente
+Il primo sito vive anche nel branch **`sito-nero`**, il deck resta comunque
+raggiungibile su `/deck`.
+
+### Guardarne uno senza toccare niente
 
 ```bash
 git switch sito-nero
@@ -162,22 +260,13 @@ npm run dev
 git switch main
 ```
 
-### Rimetterlo online al posto del deck
-
-```bash
-git switch sito-nero
-./deploy.sh
-```
-
 `deploy.env` non è tracciato, quindi resta al suo posto passando da un branch
-all'altro. Per tornare al deck: `git switch main && ./deploy.sh`.
-
-> Il branch è anche taggato **`v1-sito-nero`**, se preferisci cercarlo per nome.
+all'altro.
 
 ---
 
 ## Da fare
 
-- [ ] Far controllare a Elisa e Sofia i punti in cui le sezioni "ripartono"
-      (slide 1, 4, 5, 6, 9, 12, 20, 22, 36)
-- [ ] Decidere se serve una versione inglese delle slide
+- [ ] Decidere se il form deve arrivare via email (serve un servizio esterno)
+- [ ] Far controllare a Elisa e Sofia i testi inglesi
+- [ ] Nel Keynote, slide 12: «PORTFOLIO 2026 GRAHIC DESIGN» — manca la P di *Graphic*
