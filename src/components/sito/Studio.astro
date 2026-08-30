@@ -1,15 +1,21 @@
 ---
-import { studio, video } from '../../data/studio';
----
+import { studio, clienti, creativeVisual, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+---
 <section class="sezione studio" id="studio">
   <div class="dentro">
     <div class="colonne">
       <div class="testo">
-        <p class="occhiello">Studio</p>
+        <p class="occhiello">{testi.studio.occhiello}</p>
         <h2>Sofia <span class="barretta">|</span> <span class="corsivo">Elisa.</span></h2>
         <p class="claim">{studio.claim}</p>
-        {studio.racconto.map((p) => <p class="par">{p}</p>)}
+        {testi.studio.racconto.map((p) => <p class="par">{p}</p>)}
 
         <ul class="ruoli">
           {studio.ruoli.map((r) => <li>{r}</li>)}
@@ -18,23 +24,23 @@ import { studio, video } from '../../data/studio';
 
       <figure class="visivo">
         <img
-          src="/img/deck/s05.webp"
-          alt="Una selezione di creative visual dello studio: Umbria Jazz, MaMo New York, Copper Magazine"
+          src={creativeVisual}
+          alt={testi.studio.visivoAlt}
           width="2200"
           height="1238"
           loading="lazy"
           decoding="async"
         />
-        <figcaption>Creative visual &amp; manipulation design</figcaption>
+        <figcaption>{testi.studio.didascalia}</figcaption>
       </figure>
     </div>
 
-    <p class="manifesto">{studio.manifesto}</p>
+    <p class="manifesto">{testi.studio.manifesto}</p>
 
     <div class="clienti">
-      <p class="occhiello">Hanno lavorato con noi</p>
+      <p class="occhiello">{testi.studio.clienti}</p>
       <ul>
-        {video.map((v) => <li>{v}</li>)}
+        {clienti.map((v) => <li>{v}</li>)}
       </ul>
     </div>
   </div>

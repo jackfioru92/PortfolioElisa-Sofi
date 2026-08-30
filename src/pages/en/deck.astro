@@ -1,0 +1,13 @@
+---
+/**
+ * Il portfolio sfogliabile, comandi in inglese. Le slide restano quelle
+ * italiane del Keynote: è uno solo, e le immagini sono le stesse.
+ */
+import Base from '../../layouts/Base.astro';
+import Deck from '../../components/Deck.astro';
+const lang = 'en' as const;
+---
+
+<Base lang={lang}>
+  <Deck lang={lang} />
+</Base>

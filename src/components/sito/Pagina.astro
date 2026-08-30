@@ -1,0 +1,36 @@
+---
+/**
+ * Il sito, una pagina sola. Le due lingue montano questo stesso componente:
+ * cambiano i testi, non l'impaginato.
+ */
+import type { Lingua } from '../../data/studio';
+import Sito from '../../layouts/Sito.astro';
+import Barra from './Barra.astro';
+import Apertura from './Apertura.astro';
+import Lavori from './Lavori.astro';
+import Reel from './Reel.astro';
+import Numeri from './Numeri.astro';
+import Servizi from './Servizi.astro';
+import Studio from './Studio.astro';
+import Contatti from './Contatti.astro';
+import Chiusura from './Chiusura.astro';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+---
+
+<Sito lang={lang}>
+  <Barra lang={lang} />
+  <main>
+    <Apertura lang={lang} />
+    <Lavori lang={lang} />
+    <Reel lang={lang} />
+    <Numeri lang={lang} />
+    <Servizi lang={lang} />
+    <Studio lang={lang} />
+    <Contatti lang={lang} />
+  </main>
+  <Chiusura lang={lang} />
+</Sito>

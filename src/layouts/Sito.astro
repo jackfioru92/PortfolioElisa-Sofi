@@ -2,21 +2,23 @@
 import '@fontsource-variable/manrope';
 import '@fontsource/bodoni-moda/latin-500-italic.css';
 import '../styles/sito.css';
-import { studio } from '../data/studio';
+import { studio, percorso, type Lingua } from '../data/studio';
+import { t } from '../data/testi';
 
 interface Props {
-  titolo: string;
-  descrizione: string;
+  lang: Lingua;
 }
-const { titolo, descrizione } = Astro.props;
+const { lang } = Astro.props;
+const testi = t(lang);
 
 const site = 'https://secreative.it';
+const canonico = site + percorso(lang);
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: studio.nome,
-  description: descrizione,
+  description: testi.meta.descrizione,
   url: site,
   email: studio.email,
   telephone: studio.telefonoRaw,
@@ -36,26 +38,32 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="it">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{titolo}</title>
-    <meta name="description" content={descrizione} />
-    <link rel="canonical" href={`${site}/`} />
+    <title>{testi.meta.titolo}</title>
+    <meta name="description" content={testi.meta.descrizione} />
+    <link rel="canonical" href={canonico} />
+
+    <link rel="alternate" hreflang="it" href={`${site}/`} />
+    <link rel="alternate" hreflang="en" href={`${site}/en/`} />
+    <link rel="alternate" hreflang="x-default" href={`${site}/`} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={studio.nome} />
-    <meta property="og:title" content={titolo} />
-    <meta property="og:description" content={descrizione} />
-    <meta property="og:url" content={`${site}/`} />
+    <meta property="og:title" content={testi.meta.titolo} />
+    <meta property="og:description" content={testi.meta.descrizione} />
+    <meta property="og:url" content={canonico} />
     <meta property="og:image" content={`${site}/img/deck/s01.webp`} />
-    <meta property="og:locale" content="it_IT" />
+    <meta property="og:locale" content={lang === 'it' ? 'it_IT' : 'en_GB'} />
     <meta name="twitter:card" content="summary_large_image" />
 
     <meta name="theme-color" content="#fab415" />
     <link rel="icon" href="/img/logo/icon-512.png" type="image/png" />
     <link rel="apple-touch-icon" href="/img/logo/apple-touch-icon.png" />
+
+    <link rel="preload" as="image" href="/img/work/beyond-the-visual.webp" fetchpriority="high" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>

@@ -1,38 +1,51 @@
 ---
-const voci = [
-  { label: 'Lavori', href: '#lavori' },
-  { label: 'Reel', href: '#reel' },
-  { label: 'Servizi', href: '#servizi' },
-  { label: 'Studio', href: '#studio' },
-  { label: 'Contatti', href: '#contatti' },
-];
+import { percorso, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+const altra: Lingua = lang === 'it' ? 'en' : 'it';
 ---
 
 <header class="barra" id="barra">
-  <a class="marchio" href="#top" aria-label="SE Creative, torna in cima">
+  <a class="marchio" href="#top" aria-label={testi.nav.tornaSu}>
     <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563" />
   </a>
 
-  <nav class="voci" aria-label="Sezioni">
-    {voci.map((v) => <a href={v.href}>{v.label}</a>)}
+  <nav class="voci" aria-label={testi.nav.sezioni}>
+    {testi.nav.voci.map((v) => <a href={v.href}>{v.label}</a>)}
   </nav>
 
-  <a class="pill" href="#contatti">
-    Iniziamo un progetto
-    <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
-        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-    </svg>
-  </a>
+  <div class="destra">
+    <div class="lingue" role="group" aria-label={testi.nav.altraLingua}>
+      <span class="qui" aria-current="true">{lang.toUpperCase()}</span>
+      <a href={percorso(altra)} hreflang={altra} rel="alternate">{altra.toUpperCase()}</a>
+    </div>
 
-  <button class="menu" id="menu" aria-expanded="false" aria-controls="tendina" aria-label="Sezioni">
+    <a class="pill" href="#contatti">
+      {testi.nav.cta}
+      <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+          stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </a>
+  </div>
+
+  <button class="menu" id="menu" aria-expanded="false" aria-controls="tendina"
+    aria-label={testi.nav.sezioni}>
     <span></span><span></span>
   </button>
 </header>
 
 <div class="tendina" id="tendina" hidden>
-  {voci.map((v) => <a href={v.href}>{v.label}</a>)}
-  <a href="#contatti" class="ev">Iniziamo un progetto</a>
+  {testi.nav.voci.map((v) => <a href={v.href}>{v.label}</a>)}
+  <a href="#contatti" class="ev">{testi.nav.cta}</a>
+  <a href={percorso(altra)} hreflang={altra} rel="alternate" class="lin">
+    {testi.nav.altraLingua}
+  </a>
 </div>
 
 <script>
@@ -44,8 +57,8 @@ const voci = [
   const sentinella = document.createElement('div');
   sentinella.style.cssText = 'position:absolute;top:0;height:1px;width:1px';
   document.body.prepend(sentinella);
-  new IntersectionObserver(
-    ([e]) => barra.classList.toggle('staccata', !e.isIntersecting)
+  new IntersectionObserver(([e]) =>
+    barra.classList.toggle('staccata', !e.isIntersecting)
   ).observe(sentinella);
 
   function chiudi() {
@@ -95,7 +108,7 @@ const voci = [
     gap: 1.5rem;
     padding: 1rem var(--bordo);
     background: var(--giallo);
-    transition: box-shadow 0.3s, background 0.3s;
+    transition: box-shadow 0.3s;
   }
 
   .barra.staccata {
@@ -114,7 +127,7 @@ const voci = [
 
   .voci {
     display: flex;
-    gap: clamp(1rem, 2.6vw, 2.6rem);
+    gap: clamp(0.9rem, 2.2vw, 2.2rem);
     margin-inline: auto;
     font-size: 0.74rem;
     font-weight: 600;
@@ -150,6 +163,40 @@ const voci = [
   .voci a:hover::after,
   .voci a.qui::after {
     scale: 1 1;
+  }
+
+  .destra {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    flex: none;
+  }
+
+  /* ---- IT | EN ---- */
+  .lingue {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .lingue > * {
+    padding: 0.15rem 0.1rem;
+  }
+
+  .lingue .qui {
+    border-bottom: 1.5px solid var(--nero);
+  }
+
+  .lingue a {
+    opacity: 0.45;
+    transition: opacity 0.25s;
+  }
+
+  .lingue a:hover {
+    opacity: 1;
   }
 
   .barra .pill {
@@ -195,22 +242,31 @@ const voci = [
   }
 
   .tendina a.ev {
-    border: 0;
     color: var(--lampone);
   }
 
-  @media (max-width: 900px) {
+  .tendina a.lin {
+    border: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 980px) {
     .barra .pill,
     .voci {
       display: none;
     }
+    .destra {
+      margin-left: auto;
+    }
     .menu {
       display: grid;
-      margin-left: auto;
     }
   }
 
-  @media (min-width: 901px) {
+  @media (min-width: 981px) {
     .tendina {
       display: none;
     }

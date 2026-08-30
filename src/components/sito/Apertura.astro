@@ -1,7 +1,13 @@
 ---
-import { studio } from '../../data/studio';
----
+import { studio, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+---
 <section class="apertura" id="top">
   <!-- il marchio gigante sfocato, come nella bozza: è decorativo, non si legge -->
   <div class="parolona" aria-hidden="true">
@@ -19,22 +25,23 @@ import { studio } from '../../data/studio';
   />
 
   <div class="testo">
-    <p class="occhiello">Creative studio</p>
-    <h1>Diamo forma a brand<br /> che <span class="corsivo">lasciano il segno.</span></h1>
-    <p class="sotto">
-      Siamo {studio.persone}. Brand identity, packaging, social media e video
-      per aziende che vogliono farsi riconoscere.
-    </p>
+    <p class="occhiello">{testi.apertura.occhiello}</p>
+    <h1>
+      <Fragment set:html={testi.apertura.titolo} /><span class="corsivo"
+        >{testi.apertura.titoloCorsivo}</span
+      >
+    </h1>
+    <p class="sotto">{studio.persone}. {testi.apertura.sotto}</p>
     <a class="pill" href="#lavori">
-      Guarda i lavori
+      {testi.apertura.cta}
       <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
-          stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-      </svg>
+          <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
     </a>
   </div>
 
-  <p class="lato" aria-hidden="true">Shaping<br />ideas<br />beyond<br />the noise</p>
+  <p class="lato" aria-hidden="true" set:html={testi.apertura.lato.join('<br />')}></p>
 
   <a class="giu" href="#lavori">
     <span class="cerchio">
@@ -43,7 +50,7 @@ import { studio } from '../../data/studio';
           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </span>
-    Scorri
+    {testi.apertura.scorri}
   </a>
 </section>
 

@@ -1,13 +1,19 @@
 ---
-import { studio } from '../../data/studio';
+import { studio, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
 
 const wa = `https://wa.me/${studio.whatsapp}`;
-const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null;
+const ig = `https://instagram.com/${studio.instagram}`;
 ---
-
 <footer class="chiusura">
   <div class="dentro">
-    <a class="marchio" href="#top" aria-label="SE Creative, torna in cima">
+    <a class="marchio" href="#top" aria-label={testi.nav.tornaSu}>
       <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563"
         loading="lazy" />
     </a>
@@ -16,12 +22,10 @@ const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null
       <a href={`mailto:${studio.email}`}>{studio.email}</a>
       <a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a>
       <a href={wa} target="_blank" rel="noopener">WhatsApp</a>
-      {ig && <a href={ig} target="_blank" rel="noopener">Instagram</a>}
+      <a href={ig} target="_blank" rel="noopener">Instagram</a>
     </div>
 
-    <p class="firma">
-      Portfolio {studio.anno} — {studio.persone}
-    </p>
+    <p class="firma">{testi.chiusura.firma(studio.anno, studio.persone)}</p>
   </div>
 </footer>
 

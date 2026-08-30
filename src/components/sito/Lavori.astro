@@ -1,27 +1,32 @@
 ---
-import { progetti } from '../../data/studio';
+import { progetti, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
-const categorie = ['Tutti', ...new Set(progetti.map((p) => p.categoria))];
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+
+/* le categorie escono dai progetti, così l'elenco non va tenuto allineato a mano */
+const categorie = [...new Set(progetti.map((p) => p.categoria))];
 ---
-
 <section class="sezione lavori" id="lavori">
   <div class="dentro">
     <header class="testata">
       <div>
-        <p class="occhiello">Lavori scelti</p>
-        <h2>Idee <span class="corsivo">in azione.</span></h2>
+        <p class="occhiello">{testi.lavori.occhiello}</p>
+        <h2>{testi.lavori.titolo}<span class="corsivo">{testi.lavori.titoloCorsivo}</span></h2>
       </div>
-      <p class="intro">
-        Progetti che raccontano idee, brand e persone. Ogni lavoro è un percorso
-        creativo, non solo un risultato.
-      </p>
+      <p class="intro">{testi.lavori.intro}</p>
     </header>
 
-    <div class="filtri" role="group" aria-label="Filtra i lavori">
+    <div class="filtri" role="group" aria-label={testi.lavori.filtra}>
+      <button class="filtro on" data-cat="*">{testi.lavori.tutti}</button>
       {
-        categorie.map((c, i) => (
-          <button class:list={['filtro', { on: i === 0 }]} data-cat={c}>
-            {c}
+        categorie.map((c) => (
+          <button class="filtro" data-cat={c}>
+            {testi.lavori.categorie[c]}
           </button>
         ))
       }
@@ -29,26 +34,30 @@ const categorie = ['Tutti', ...new Set(progetti.map((p) => p.categoria))];
 
     <ul class="griglia" id="griglia">
       {
-        progetti.map((p) => (
-          <li class="carta" data-cat={p.categoria}>
-            <article>
-              <div class="foto">
-                <img src={p.img} alt={`${p.titolo} — ${p.progetto}`} loading="lazy" decoding="async" />
-              </div>
-              <div class="riga">
-                <div>
-                  <h3>{p.titolo}</h3>
-                  <p class="meta">{p.tipologia} · {p.progetto}</p>
+        progetti.map((p) => {
+          const d = testi.progetti[p.slug];
+          return (
+            <li class="carta" data-cat={p.categoria}>
+              <article>
+                <div class="foto">
+                  <img src={p.img} alt={`${d.titolo} — ${d.progetto}`} loading="lazy"
+                    decoding="async" />
                 </div>
-                <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
-                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </div>
-              <p class="descrizione">{p.testo}</p>
-            </article>
-          </li>
-        ))
+                <div class="riga">
+                  <div>
+                    <h3>{d.titolo}</h3>
+                    <p class="meta">{d.tipologia} · {d.progetto}</p>
+                  </div>
+                  <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
+                      stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <p class="descrizione">{d.testo}</p>
+              </article>
+            </li>
+          );
+        })
       }
     </ul>
   </div>
@@ -63,8 +72,9 @@ const categorie = ['Tutti', ...new Set(progetti.map((p) => p.categoria))];
       const cat = b.dataset.cat!;
       filtri.forEach((x) => x.classList.toggle('on', x === b));
       carte.forEach((c) => {
-        const dentro = cat === 'Tutti' || c.dataset.cat === cat;
-        c.hidden = !dentro;
+        // «*» è il pulsante «tutti»: il confronto è sulla categoria, non
+        // sull'etichetta, che cambia con la lingua
+        c.hidden = !(cat === '*' || c.dataset.cat === cat);
       });
     })
   );

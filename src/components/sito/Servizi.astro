@@ -1,5 +1,12 @@
 ---
-import { servizi } from '../../data/studio';
+import { type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
 
 /* un segno per ciascun servizio, nello stesso tratto della bozza */
 const segni = [
@@ -9,23 +16,23 @@ const segni = [
   'M5 20c3-9 8-13 14-14M5 20l-1 1M8 6a3 3 0 106 0 3 3 0 00-6 0',
 ];
 ---
-
 <section class="sezione servizi" id="servizi">
   <div class="dentro">
     <header class="testata">
       <div>
-        <p class="occhiello">Cosa facciamo</p>
-        <h2>Dal concept<br /> alla <span class="corsivo">cultura.</span></h2>
+        <p class="occhiello">{testi.servizi.occhiello}</p>
+        <h2>
+          <Fragment set:html={testi.servizi.titolo} /><span class="corsivo"
+            >{testi.servizi.titoloCorsivo}</span
+          >
+        </h2>
       </div>
-      <p class="intro">
-        Aiutiamo i brand a distinguersi con una comunicazione coerente, esperienze
-        digitali e contenuti che creano connessioni reali.
-      </p>
+      <p class="intro">{testi.servizi.intro}</p>
     </header>
 
     <ul class="griglia">
       {
-        servizi.map((s, i) => (
+        testi.servizi.voci.map((s, i) => (
           <li>
             <svg class="segno" viewBox="0 0 24 24" aria-hidden="true">
               <path d={segni[i]} fill="none" stroke="currentColor" stroke-width="1.5"

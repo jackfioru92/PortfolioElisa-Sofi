@@ -1,14 +1,22 @@
 ---
-import { studio } from '../../data/studio';
+import { studio, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
-const wa = `https://wa.me/${studio.whatsapp}?text=${encodeURIComponent(studio.messaggioWhatsapp)}`;
-const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null;
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+
+const wa = `https://wa.me/${studio.whatsapp}?text=${encodeURIComponent(
+  t(lang).contatti.messaggioWhatsapp
+)}`;
+const ig = `https://instagram.com/${studio.instagram}`;
 ---
-
 <section class="sezione contatti" id="contatti">
   <div class="dentro colonne">
     <div>
-      <p class="occhiello">Contatti</p>
+      <p class="occhiello">{testi.contatti.occhiello}</p>
       <img
         class="nastro"
         src="/img/work/lets-connect.webp"
@@ -17,112 +25,64 @@ const ig = studio.instagram ? `https://instagram.com/${studio.instagram}` : null
         height="452"
         loading="lazy"
       />
-      <p class="invito">
-        Raccontaci il tuo progetto, la tua idea o semplicemente la tua curiosità.
-        Siamo qui per ascoltarti.
-      </p>
+      <p class="invito">{testi.contatti.invito}</p>
 
       <ul class="recapiti">
-        <li>
-          <a href={`mailto:${studio.email}`}>{studio.email}</a>
-        </li>
-        <li>
-          <a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a>
-        </li>
-        <li><span>{studio.luogo}</span></li>
+        <li><a href={`mailto:${studio.email}`}>{studio.email}</a></li>
+        <li><a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a></li>
+        <li><span>{testi.contatti.luogo}</span></li>
       </ul>
 
       <div class="social">
         <a class="pill vuoto" href={wa} target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
-            <path
-              d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linejoin="round"></path>
+            <path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2z" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
             <path
               d="M8.5 7.7c.3 0 .5 0 .7.4l.8 1.7c.1.3 0 .5-.1.7l-.5.6c-.2.2-.2.4 0 .7a7 7 0 003 2.7c.3.1.5.1.7-.1l.6-.6c.2-.2.4-.2.7-.1l1.7.8c.3.2.4.3.4.6 0 1-.8 1.9-1.8 2-1.5.1-3.7-1-5.3-2.6S6.6 10.9 6.6 9.4c0-1 .9-1.7 1.9-1.7z"
               fill="currentColor"></path>
           </svg>
-          Scrivici su WhatsApp
+          {testi.contatti.whatsapp}
         </a>
 
-        {
-          ig && (
-            <a class="pill vuoto" href={ig} target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="5" fill="none"
-                  stroke="currentColor" stroke-width="1.7" />
-                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
-                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" />
-              </svg>
-              Instagram
-            </a>
-          )
-        }
+        <a class="pill vuoto" href={ig} target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor"
+              stroke-width="1.7"></rect>
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"
+            ></circle>
+            <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"></circle>
+          </svg>
+          {testi.contatti.instagram}
+        </a>
       </div>
     </div>
 
     <form class="modulo" id="modulo">
       <label>
-        <span>Nome<i>*</i></span>
+        <span>{testi.contatti.modulo.nome}<i>*</i></span>
         <input type="text" name="nome" required autocomplete="name" />
       </label>
       <label>
-        <span>Email<i>*</i></span>
+        <span>{testi.contatti.modulo.email}<i>*</i></span>
         <input type="email" name="email" required autocomplete="email" />
       </label>
       <label>
-        <span>Messaggio<i>*</i></span>
+        <span>{testi.contatti.modulo.messaggio}<i>*</i></span>
         <textarea name="messaggio" rows="5" required></textarea>
       </label>
       <p class="errore" id="errore" hidden></p>
       <button class="pill" type="submit">
-        Invia messaggio
+        {testi.contatti.modulo.invia}
         <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
       </button>
-      <p class="nota">
-        Il tasto apre il tuo programma di posta con il messaggio già scritto.
-      </p>
+      <p class="nota">{testi.contatti.modulo.nota}</p>
     </form>
   </div>
 </section>
-
-<script define:vars={{ destinatario: studio.email }}>
-  const modulo = document.getElementById('modulo');
-  const errore = document.getElementById('errore');
-
-  modulo.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const d = new FormData(modulo);
-    const nome = String(d.get('nome') || '').trim();
-    const email = String(d.get('email') || '').trim();
-    const testo = String(d.get('messaggio') || '').trim();
-
-    if (!nome || !email || !testo) {
-      errore.textContent = 'Compila nome, email e messaggio.';
-      errore.hidden = false;
-      return;
-    }
-    errore.hidden = true;
-
-    // il sito è statico: non c'è nessun server a cui inviare, si passa la palla
-    // al programma di posta di chi scrive
-    const oggetto = `Nuovo progetto — ${nome}`;
-    const corpo = `${testo}\n\n—\n${nome}\n${email}`;
-    location.href =
-      `mailto:${destinatario}?subject=${encodeURIComponent(oggetto)}` +
-      `&body=${encodeURIComponent(corpo)}`;
-  });
-
-  modulo.querySelectorAll('input, textarea').forEach((c) =>
-    c.addEventListener('input', () => (errore.hidden = true))
-  );
-</script>
 
 <style>
   .contatti {

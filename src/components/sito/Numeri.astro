@@ -1,16 +1,22 @@
 ---
-import { numeri, beyond } from '../../data/studio';
----
+import { numeri, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+---
 <section class="sezione scura numeri" id="numeri">
   <div class="dentro">
     <header class="testata">
       <div>
-        <p class="occhiello">Social media</p>
-        <h2>Non solo <span class="corsivo">contenuti.</span></h2>
+        <p class="occhiello">{testi.numeri.occhiello}</p>
+        <h2>{testi.numeri.titolo}<span class="corsivo">{testi.numeri.titoloCorsivo}</span></h2>
       </div>
       <div class="racconto">
-        {beyond.slice(0, 2).map((p) => <p>{p}</p>)}
+        {testi.numeri.racconto.map((p) => <p>{p}</p>)}
       </div>
     </header>
 
@@ -27,7 +33,7 @@ import { numeri, beyond } from '../../data/studio';
               </svg>
               <span class="a">{n.a}</span>
             </p>
-            <p class="periodo">follower {n.periodo}</p>
+            <p class="periodo">{testi.numeri.follower} {testi.numeri.periodo(n.anni)}</p>
           </li>
         ))
       }

@@ -1,17 +1,21 @@
 ---
-import { reel } from '../../data/studio';
----
+import { reel, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
 
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+---
 <section class="sezione scura reel" id="reel">
   <div class="dentro">
     <header class="testata">
       <div>
-        <p class="occhiello">Reel &amp; video</p>
-        <h2>Girati, montati, <span class="corsivo">pubblicati.</span></h2>
+        <p class="occhiello">{testi.reel.occhiello}</p>
+        <h2>{testi.reel.titolo}<span class="corsivo">{testi.reel.titoloCorsivo}</span></h2>
       </div>
-      <p class="intro">
-        {reel.length} video verticali prodotti per i profili che seguiamo.
-      </p>
+      <p class="intro">{testi.reel.intro(reel.length)}</p>
     </header>
   </div>
 
@@ -19,7 +23,7 @@ import { reel } from '../../data/studio';
     {
       reel.map((r) => (
         <li>
-          <button class="clip" data-video={r.video} aria-label={`Guarda il reel per ${r.brand}`}>
+          <button class="clip" data-video={r.video} aria-label={testi.reel.guarda(r.brand)}>
             <img src={r.poster} alt="" width="540" height="960" loading="lazy" decoding="async" />
             <span class="play" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="20" height="20">
@@ -35,7 +39,7 @@ import { reel } from '../../data/studio';
 </section>
 
 <dialog class="teatro" id="teatro" aria-label="Video">
-  <button class="chiudi" id="chiudi" aria-label="Chiudi">&times;</button>
+  <button class="chiudi" id="chiudi" aria-label={testi.reel.chiudi}>&times;</button>
   <video id="lettore" controls playsinline preload="none"></video>
 </dialog>
 
