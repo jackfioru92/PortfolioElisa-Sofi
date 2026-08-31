@@ -23,8 +23,10 @@ export const studio = {
     'Web Designer',
   ],
 
-  /* slide 36 */
-  email: 'secreative06@gmail.com',
+  /* La casella ufficiale del dominio: è quella a cui il servizio dei contatti
+     consegna le richieste. Nel Keynote (slide 36) c'era ancora un indirizzo
+     gmail, ma non si usa più. */
+  email: 'info@secreative.it',
   telefono: '+39 351 437 4436',
   telefonoRaw: '+393514374436',
 
@@ -84,5 +86,16 @@ export const reel = Object.entries(perCliente).flatMap(([brand, file]) =>
 
 export const clienti = Object.keys(perCliente).filter((b) => b !== 'Social');
 
-/** L'indirizzo della stessa pagina nell'altra lingua. */
+/** La home nella lingua indicata. */
 export const percorso = (lang: Lingua) => (lang === 'it' ? '/' : '/en/');
+
+/**
+ * La STESSA pagina nell'altra lingua: da /privacy/ si va a /en/privacy/, non
+ * alla home inglese. Le pagine inglesi sono le italiane con /en davanti.
+ */
+export function gemella(pathname: string, lang: Lingua): string {
+  const pulito = pathname.endsWith('/') ? pathname : pathname + '/';
+  if (lang === 'it') return '/en' + pulito;
+  const senzaEn = pulito.replace(/^\/en(?=\/)/, '');
+  return senzaEn || '/';
+}

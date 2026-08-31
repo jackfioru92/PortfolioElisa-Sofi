@@ -8,10 +8,12 @@ interface Props {
 const { lang } = Astro.props;
 const testi = t(lang);
 
+const m = testi.contatti.modulo;
 const wa = `https://wa.me/${studio.whatsapp}?text=${encodeURIComponent(
-  t(lang).contatti.messaggioWhatsapp
+  testi.contatti.messaggioWhatsapp
 )}`;
 const ig = `https://instagram.com/${studio.instagram}`;
+const privacyHref = lang === 'it' ? '/privacy/' : '/en/privacy/';
 ---
 <section class="sezione contatti" id="contatti">
   <div class="dentro colonne">
@@ -58,31 +60,163 @@ const ig = `https://instagram.com/${studio.instagram}`;
       </div>
     </div>
 
-    <form class="modulo" id="modulo">
+    <form class="modulo" id="modulo" novalidate>
+      <p class="titolo-modulo">{m.titolo}</p>
+
+      <div class="riga-due">
+        <label>
+          <span>{m.nome}<i>*</i></span>
+          <input type="text" name="nome" autocomplete="given-name" maxlength="80" required />
+          <em class="dice" data-per="nome"></em>
+        </label>
+        <label>
+          <span>{m.cognome}<i>*</i></span>
+          <input type="text" name="cognome" autocomplete="family-name" maxlength="80" required />
+          <em class="dice" data-per="cognome"></em>
+        </label>
+      </div>
+
       <label>
-        <span>{testi.contatti.modulo.nome}<i>*</i></span>
-        <input type="text" name="nome" required autocomplete="name" />
+        <span>{m.email}<i>*</i></span>
+        <input type="email" name="email" autocomplete="email" maxlength="160" required />
+        <em class="dice" data-per="email"></em>
       </label>
+
       <label>
-        <span>{testi.contatti.modulo.email}<i>*</i></span>
-        <input type="email" name="email" required autocomplete="email" />
+        <span>{m.provenienza}</span>
+        <input type="text" name="provenienza" maxlength="120" placeholder={m.provenienzaAiuto} />
       </label>
+
       <label>
-        <span>{testi.contatti.modulo.messaggio}<i>*</i></span>
-        <textarea name="messaggio" rows="5" required></textarea>
+        <span>{m.messaggio}<i>*</i></span>
+        <textarea name="messaggio" rows="5" maxlength="4000" placeholder={m.messaggioAiuto} required
+        ></textarea>
+        <em class="dice" data-per="messaggio"></em>
       </label>
-      <p class="errore" id="errore" hidden></p>
-      <button class="pill" type="submit">
-        {testi.contatti.modulo.invia}
+
+      {/* campo esca: invisibile a chi legge, lo compilano solo i robot */}
+      <div class="esca" aria-hidden="true">
+        <label>Sito<input type="text" name="sito" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <button class="pill" type="submit" id="invia">
+        <span id="etichetta-invia">{m.invia}</span>
         <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
       </button>
-      <p class="nota">{testi.contatti.modulo.nota}</p>
+
+      <p class="esito" id="esito" role="status" hidden></p>
+
+      <p class="nota">
+        {m.nota} <a href={privacyHref}>{m.notaLink}</a>
+      </p>
     </form>
   </div>
 </section>
+
+<script define:vars={{ d: m }}>
+  const modulo = document.getElementById('modulo');
+  const bottone = document.getElementById('invia');
+  const etichetta = document.getElementById('etichetta-invia');
+  const esito = document.getElementById('esito');
+  const dice = (campo) => modulo.querySelector(`.dice[data-per="${campo}"]`);
+
+  const valore = (campo) => String(new FormData(modulo).get(campo) || '').trim();
+
+  function pulisci() {
+    modulo.querySelectorAll('.dice').forEach((e) => (e.textContent = ''));
+    modulo.querySelectorAll('.storto').forEach((e) => e.classList.remove('storto'));
+  }
+
+  /** Gli stessi controlli del servizio, fatti prima di disturbare la rete. */
+  function controlla() {
+    const errori = {};
+    for (const campo of ['nome', 'cognome', 'email', 'messaggio']) {
+      if (!valore(campo)) errori[campo] = d.obbligatorio;
+    }
+    const email = valore('email');
+    if (email && !/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(email)) errori.email = d.emailNo;
+    const messaggio = valore('messaggio');
+    if (messaggio && messaggio.length < 10) errori.messaggio = d.corto;
+    return errori;
+  }
+
+  function mostra(errori) {
+    for (const [campo, testo] of Object.entries(errori)) {
+      const e = dice(campo);
+      if (e) e.textContent = testo;
+      modulo.querySelector(`[name="${campo}"]`)?.classList.add('storto');
+    }
+    modulo.querySelector('.storto')?.focus();
+  }
+
+  function annuncia(ok, titolo, testo) {
+    esito.hidden = false;
+    esito.className = 'esito ' + (ok ? 'bene' : 'male');
+    esito.innerHTML = `<b></b> <span></span>`;
+    esito.querySelector('b').textContent = titolo;
+    esito.querySelector('span').textContent = testo;
+  }
+
+  modulo.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    pulisci();
+    esito.hidden = true;
+
+    const errori = controlla();
+    if (Object.keys(errori).length) return mostra(errori);
+
+    bottone.disabled = true;
+    etichetta.textContent = d.invio;
+
+    try {
+      const r = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: valore('nome'),
+          cognome: valore('cognome'),
+          email: valore('email'),
+          provenienza: valore('provenienza'),
+          messaggio: valore('messaggio'),
+          sito: valore('sito'), // l'esca: se è pieno, il servizio scarta in silenzio
+        }),
+      });
+
+      if (r.ok) {
+        modulo.reset();
+        annuncia(true, d.okTitolo, d.okTesto);
+      } else if (r.status === 429) {
+        annuncia(false, d.koTitolo, d.troppe);
+      } else if (r.status === 422) {
+        // il servizio dice quali campi non gli tornano
+        const corpo = await r.json().catch(() => ({}));
+        const campi = Array.isArray(corpo.campi) ? corpo.campi : [];
+        if (campi.length) mostra(Object.fromEntries(campi.map((c) => [c, d.obbligatorio])));
+        else annuncia(false, d.koTitolo, d.koTesto);
+      } else {
+        annuncia(false, d.koTitolo, d.koTesto);
+      }
+    } catch {
+      // rete assente o servizio irraggiungibile
+      annuncia(false, d.koTitolo, d.koTesto);
+    } finally {
+      bottone.disabled = false;
+      etichetta.textContent = d.invia;
+    }
+  });
+
+  /* appena si corregge un campo, il suo avviso sparisce */
+  modulo.querySelectorAll('input, textarea').forEach((c) =>
+    c.addEventListener('input', () => {
+      c.classList.remove('storto');
+      const e = dice(c.name);
+      if (e) e.textContent = '';
+    })
+  );
+</script>
 
 <style>
   .contatti {
@@ -202,17 +336,83 @@ const ig = `https://instagram.com/${studio.instagram}`;
     justify-self: start;
   }
 
-  .errore {
-    margin: -0.6rem 0 0;
-    font-size: 0.85rem;
+  .titolo-modulo {
+    margin: 0 0 -0.4rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .riga-due {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  /* l'avviso sotto al campo: occupa spazio solo quando c'è qualcosa da dire */
+  .dice {
+    font-size: 0.78rem;
     font-weight: 600;
-    color: #9c1d1d;
+    font-style: normal;
+    color: #8f1d1d;
+  }
+
+  .dice:empty {
+    display: none;
+  }
+
+  .modulo .storto {
+    border-color: #8f1d1d;
+  }
+
+  /* il campo esca: fuori dallo schermo, non lo vede nessuno tranne i robot */
+  .esca {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .esito {
+    display: grid;
+    gap: 0.15rem;
+    margin: -0.4rem 0 0;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .esito b {
+    font-weight: 700;
+  }
+
+  .esito.bene {
+    background: var(--nero);
+    color: var(--giallo);
+  }
+
+  .esito.male {
+    background: #fbe3e3;
+    color: #7d1a1a;
   }
 
   .nota {
     margin: -0.4rem 0 0;
     font-size: 0.78rem;
-    opacity: 0.62;
+    line-height: 1.55;
+    opacity: 0.68;
+  }
+
+  .nota a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  @media (min-width: 460px) {
+    .riga-due {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   @media (min-width: 900px) {

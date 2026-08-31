@@ -10,10 +10,12 @@ const testi = t(lang);
 
 const wa = `https://wa.me/${studio.whatsapp}`;
 const ig = `https://instagram.com/${studio.instagram}`;
+const privacyHref = lang === 'it' ? '/privacy/' : '/en/privacy/';
+const casa = lang === 'it' ? '/' : '/en/';
 ---
 <footer class="chiusura">
   <div class="dentro">
-    <a class="marchio" href="#top" aria-label={testi.nav.tornaSu}>
+    <a class="marchio" href={casa} aria-label={testi.nav.tornaSu}>
       <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563"
         loading="lazy" />
     </a>
@@ -23,6 +25,7 @@ const ig = `https://instagram.com/${studio.instagram}`;
       <a href={`tel:${studio.telefonoRaw}`}>{studio.telefono}</a>
       <a href={wa} target="_blank" rel="noopener">WhatsApp</a>
       <a href={ig} target="_blank" rel="noopener">Instagram</a>
+      <a href={privacyHref}>{testi.chiusura.privacy}</a>
     </div>
 
     <p class="firma">{testi.chiusura.firma(studio.anno, studio.persone)}</p>

@@ -129,17 +129,113 @@ const it = {
     messaggioWhatsapp: 'Ciao SE Creative! Vi scrivo dal sito.',
     instagram: 'Instagram',
     modulo: {
+      titolo: 'Scrivici',
       nome: 'Nome',
-      email: 'Email',
-      messaggio: 'Messaggio',
-      invia: 'Invia messaggio',
-      nota: 'Il tasto apre il tuo programma di posta con il messaggio già scritto.',
-      errore: 'Compila nome, email e messaggio.',
-      oggetto: (nome: string) => `Nuovo progetto — ${nome}`,
+      cognome: 'Cognome',
+      email: 'La tua email',
+      provenienza: 'Come ci hai trovati?',
+      provenienzaAiuto: 'Instagram, passaparola, ricerca su Google…',
+      messaggio: 'La tua richiesta',
+      messaggioAiuto: 'Raccontaci il progetto: di cosa hai bisogno e per quando.',
+      invia: 'Invia la richiesta',
+      invio: 'Invio in corso…',
+      okTitolo: 'Richiesta inviata.',
+      okTesto: 'Ti rispondiamo di solito entro un giorno lavorativo.',
+      koTitolo: 'Non è stato possibile inviare.',
+      koTesto: 'Riprova fra poco, oppure scrivici su WhatsApp.',
+      troppe: 'Troppe richieste dallo stesso collegamento: riprova fra qualche minuto.',
+      obbligatorio: 'Campo obbligatorio',
+      emailNo: 'Controlla l’indirizzo email',
+      corto: 'Scrivi qualche parola in più',
+      richiesto: 'obbligatorio',
+      nota: 'Scrivendoci accetti che i tuoi dati siano usati per risponderti.',
+      notaLink: 'Come trattiamo i dati',
     },
   },
 
-  chiusura: { firma: (anno: number, persone: string) => `Portfolio ${anno} — ${persone}` },
+  chiusura: {
+    firma: (anno: number, persone: string) => `Portfolio ${anno} — ${persone}`,
+    privacy: 'Privacy e cookie',
+  },
+
+  privacy: {
+    titoloPagina: 'Privacy e cookie — SE Creative',
+    descrizione:
+      'Come SE Creative tratta i dati di chi visita secreative.it: nessun cookie, nessun tracciamento, e cosa succede quando ci scrivi.',
+    titolo: 'Privacy e ',
+    titoloCorsivo: 'cookie.',
+    aggiornata: 'Aggiornata il 31 agosto 2026',
+    torna: 'Torna al sito',
+    sommario: `Questo sito non usa cookie, non ha statistiche e non carica niente da
+      servizi esterni. L’unico momento in cui raccogliamo dei dati è quando ci scrivi
+      col modulo dei contatti.`,
+    sezioni: [
+      {
+        titolo: 'Chi tratta i dati',
+        testo: [
+          `Il titolare del trattamento è SE Creative — Sofia Ercolani ed Elisa Zetti,
+           Perugia. Per qualsiasi domanda su questa pagina, o per esercitare i diritti
+           elencati più sotto, l’indirizzo è info@secreative.it.`,
+        ],
+      },
+      {
+        titolo: 'Niente cookie, niente tracciamento',
+        testo: [
+          `Il sito non installa cookie, né tecnici né di profilazione, e non usa
+           localStorage o tecnologie simili. Non ci sono Google Analytics, pixel di
+           Meta o altri strumenti di statistica.`,
+          `Anche i caratteri tipografici sono serviti dal nostro server: aprendo il
+           sito il browser non contatta Google Fonts né altri domini. Per questo non
+           trovi il solito banner dei cookie: non ci sarebbe niente da accettare.`,
+          `Gli unici indirizzi esterni sono i collegamenti a Instagram e WhatsApp, e
+           si aprono solo se li premi tu.`,
+        ],
+      },
+      {
+        titolo: 'Quando ci scrivi',
+        testo: [
+          `Il modulo dei contatti raccoglie nome, cognome, indirizzo email, il testo
+           della richiesta e — se vuoi indicarlo — come ci hai trovati. Servono a
+           risponderti: la base giuridica è il riscontro a una tua richiesta.`,
+          `Il messaggio viene recapitato alla casella info@secreative.it e, insieme,
+           registrato su un file del nostro server con la data e l’indirizzo IP da cui
+           è partito. L’IP serve a limitare gli invii automatici e a evitare che il
+           modulo venga usato dai robot per mandare posta indesiderata.`,
+          `Conserviamo le richieste finché servono a gestire il rapporto con te, e
+           comunque non oltre 24 mesi, salvo che la conversazione diventi un lavoro
+           insieme: in quel caso valgono i tempi degli obblighi contabili.`,
+        ],
+      },
+      {
+        titolo: 'I registri del server',
+        testo: [
+          `Come ogni sito, il server registra le richieste che riceve: indirizzo IP,
+           data e ora, pagina richiesta e tipo di browser. Sono registri tecnici, usati
+           per la sicurezza e per capire eventuali malfunzionamenti, e non vengono
+           incrociati con altri dati per identificare chi legge.`,
+        ],
+      },
+      {
+        titolo: 'Chi altro vede i dati',
+        testo: [
+          `Non vendiamo e non cediamo i dati a nessuno. Li trattano solo le persone
+           dello studio e i fornitori tecnici indispensabili: chi ospita il server e
+           chi gestisce la casella di posta del dominio.`,
+        ],
+      },
+      {
+        titolo: 'I tuoi diritti',
+        testo: [
+          `Puoi chiedere in qualunque momento di sapere quali dati abbiamo, di
+           correggerli, di cancellarli, di limitarne l’uso o di riceverli in un
+           formato leggibile, e puoi opporti al trattamento. Basta scrivere a
+           info@secreative.it: rispondiamo entro trenta giorni.`,
+          `Se pensi che qualcosa non vada, puoi rivolgerti al Garante per la
+           protezione dei dati personali (www.garanteprivacy.it).`,
+        ],
+      },
+    ],
+  },
 
   progetti: {
     'acqua-dolce': {
@@ -325,17 +421,113 @@ const en: Testi = {
     messaggioWhatsapp: 'Hi SE Creative! I’m writing from your website.',
     instagram: 'Instagram',
     modulo: {
-      nome: 'Name',
-      email: 'Email',
-      messaggio: 'Message',
-      invia: 'Send message',
-      nota: 'The button opens your mail app with the message already written.',
-      errore: 'Please fill in name, email and message.',
-      oggetto: (nome: string) => `New project — ${nome}`,
+      titolo: 'Write to us',
+      nome: 'First name',
+      cognome: 'Last name',
+      email: 'Your email',
+      provenienza: 'How did you find us?',
+      provenienzaAiuto: 'Instagram, word of mouth, Google search…',
+      messaggio: 'Your message',
+      messaggioAiuto: 'Tell us about the project: what you need, and by when.',
+      invia: 'Send request',
+      invio: 'Sending…',
+      okTitolo: 'Request sent.',
+      okTesto: 'We usually reply within one working day.',
+      koTitolo: 'The message could not be sent.',
+      koTesto: 'Please try again shortly, or reach us on WhatsApp.',
+      troppe: 'Too many requests from this connection: please try again in a few minutes.',
+      obbligatorio: 'Required field',
+      emailNo: 'Please check the email address',
+      corto: 'Please write a little more',
+      richiesto: 'required',
+      nota: 'By writing to us you agree that your details will be used to reply to you.',
+      notaLink: 'How we handle data',
     },
   },
 
-  chiusura: { firma: (anno: number, persone: string) => `Portfolio ${anno} — ${persone}` },
+  chiusura: {
+    firma: (anno: number, persone: string) => `Portfolio ${anno} — ${persone}`,
+    privacy: 'Privacy and cookies',
+  },
+
+  privacy: {
+    titoloPagina: 'Privacy and cookies — SE Creative',
+    descrizione:
+      'How SE Creative handles the data of people visiting secreative.it: no cookies, no tracking, and what happens when you write to us.',
+    titolo: 'Privacy and ',
+    titoloCorsivo: 'cookies.',
+    aggiornata: 'Last updated 31 August 2026',
+    torna: 'Back to the site',
+    sommario: `This site sets no cookies, has no analytics and loads nothing from external
+      services. The only moment we collect any data is when you write to us through the
+      contact form.`,
+    sezioni: [
+      {
+        titolo: 'Who handles the data',
+        testo: [
+          `The data controller is SE Creative — Sofia Ercolani and Elisa Zetti, Perugia,
+           Italy. For any question about this page, or to exercise the rights listed
+           below, write to info@secreative.it.`,
+        ],
+      },
+      {
+        titolo: 'No cookies, no tracking',
+        testo: [
+          `The site sets no cookies, neither technical nor for profiling, and uses no
+           localStorage or similar technology. There is no Google Analytics, no Meta
+           pixel, no other analytics tool.`,
+          `Even the typefaces are served from our own server: opening the site, your
+           browser contacts neither Google Fonts nor any other domain. That is why there
+           is no cookie banner here — there would be nothing to accept.`,
+          `The only external addresses are the links to Instagram and WhatsApp, and they
+           open only if you choose to follow them.`,
+        ],
+      },
+      {
+        titolo: 'When you write to us',
+        testo: [
+          `The contact form collects your first name, last name, email address, the text
+           of your request and — if you care to say — how you found us. They serve to
+           reply to you: the legal basis is responding to a request you made.`,
+          `The message is delivered to info@secreative.it and, at the same time, recorded
+           in a file on our server together with the date and the IP address it came
+           from. The IP is used to limit automated submissions and to stop robots using
+           the form to send unwanted mail.`,
+          `We keep requests for as long as they are useful to our relationship with you,
+           and in any case no longer than 24 months — unless the conversation turns into
+           work together, in which case accounting retention periods apply.`,
+        ],
+      },
+      {
+        titolo: 'Server logs',
+        testo: [
+          `Like every website, the server records the requests it receives: IP address,
+           date and time, page requested and browser type. These are technical logs, used
+           for security and to diagnose faults, and they are not cross-referenced with
+           other data to identify readers.`,
+        ],
+      },
+      {
+        titolo: 'Who else sees the data',
+        testo: [
+          `We do not sell or pass on data to anyone. It is handled only by the people in
+           the studio and by the technical suppliers we cannot do without: whoever hosts
+           the server and whoever runs the domain’s mailbox.`,
+        ],
+      },
+      {
+        titolo: 'Your rights',
+        testo: [
+          `At any time you may ask what data we hold, have it corrected or deleted,
+           restrict its use, receive it in a readable format, or object to the
+           processing. Write to info@secreative.it: we reply within thirty days.`,
+          `If you believe something is wrong, you may contact the Italian data protection
+           authority, the Garante per la protezione dei dati personali
+           (www.garanteprivacy.it).`,
+        ],
+      },
+    ],
+  },
 
   progetti: {
     'acqua-dolce': {

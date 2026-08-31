@@ -7,18 +7,28 @@ import { t } from '../data/testi';
 
 interface Props {
   lang: Lingua;
+  /** titolo e descrizione della home, se non si passa nulla */
+  titolo?: string;
+  descrizione?: string;
 }
-const { lang } = Astro.props;
+const { lang, titolo, descrizione } = Astro.props;
 const testi = t(lang);
 
 const site = 'https://secreative.it';
-const canonico = site + percorso(lang);
+const meta = {
+  titolo: titolo ?? testi.meta.titolo,
+  descrizione: descrizione ?? testi.meta.descrizione,
+};
+
+/* il canonico è la pagina che si sta guardando, non sempre la home */
+const canonico = new URL(Astro.url.pathname, site).href;
+const altra: Lingua = lang === 'it' ? 'en' : 'it';
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: studio.nome,
-  description: testi.meta.descrizione,
+  description: meta.descrizione,
   url: site,
   email: studio.email,
   telephone: studio.telefonoRaw,
@@ -42,8 +52,8 @@ const jsonLd = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{testi.meta.titolo}</title>
-    <meta name="description" content={testi.meta.descrizione} />
+    <title>{meta.titolo}</title>
+    <meta name="description" content={meta.descrizione} />
     <link rel="canonical" href={canonico} />
 
     <link rel="alternate" hreflang="it" href={`${site}/`} />
@@ -52,8 +62,8 @@ const jsonLd = {
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={studio.nome} />
-    <meta property="og:title" content={testi.meta.titolo} />
-    <meta property="og:description" content={testi.meta.descrizione} />
+    <meta property="og:title" content={meta.titolo} />
+    <meta property="og:description" content={meta.descrizione} />
     <meta property="og:url" content={canonico} />
     <meta property="og:image" content={`${site}/img/deck/s01.webp`} />
     <meta property="og:locale" content={lang === 'it' ? 'it_IT' : 'en_GB'} />

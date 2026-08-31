@@ -1,5 +1,5 @@
 ---
-import { percorso, type Lingua } from '../../data/studio';
+import { percorso, gemella, type Lingua } from '../../data/studio';
 import { t } from '../../data/testi';
 
 interface Props {
@@ -8,24 +8,32 @@ interface Props {
 const { lang } = Astro.props;
 const testi = t(lang);
 const altra: Lingua = lang === 'it' ? 'en' : 'it';
+
+/* fuori dalla home le ancore non esistono: vanno fatte puntare alla home */
+const casa = percorso(lang);
+const inHome = Astro.url.pathname.replace(/\/+$/, '/') === casa;
+const dove = (ancora: string) => (inHome ? ancora : casa + ancora);
+
+/* il selettore resta sulla stessa pagina, non riporta alla home */
+const altroHref = gemella(Astro.url.pathname, lang);
 ---
 
 <header class="barra" id="barra">
-  <a class="marchio" href="#top" aria-label={testi.nav.tornaSu}>
+  <a class="marchio" href={dove('#top')} aria-label={testi.nav.tornaSu}>
     <img src="/img/logo/se-creative-nero.webp" alt="SE Creative" width="900" height="563" />
   </a>
 
   <nav class="voci" aria-label={testi.nav.sezioni}>
-    {testi.nav.voci.map((v) => <a href={v.href}>{v.label}</a>)}
+    {testi.nav.voci.map((v) => <a href={dove(v.href)}>{v.label}</a>)}
   </nav>
 
   <div class="destra">
     <div class="lingue" role="group" aria-label={testi.nav.altraLingua}>
       <span class="qui" aria-current="true">{lang.toUpperCase()}</span>
-      <a href={percorso(altra)} hreflang={altra} rel="alternate">{altra.toUpperCase()}</a>
+      <a href={altroHref} hreflang={altra} rel="alternate">{altra.toUpperCase()}</a>
     </div>
 
-    <a class="pill" href="#contatti">
+    <a class="pill" href={dove('#contatti')}>
       {testi.nav.cta}
       <svg class="freccia" viewBox="0 0 16 16" aria-hidden="true">
         <path d="M4 12L12 4M12 4H5.5M12 4v6.5" fill="none" stroke="currentColor"
@@ -41,9 +49,9 @@ const altra: Lingua = lang === 'it' ? 'en' : 'it';
 </header>
 
 <div class="tendina" id="tendina" hidden>
-  {testi.nav.voci.map((v) => <a href={v.href}>{v.label}</a>)}
-  <a href="#contatti" class="ev">{testi.nav.cta}</a>
-  <a href={percorso(altra)} hreflang={altra} rel="alternate" class="lin">
+  {testi.nav.voci.map((v) => <a href={dove(v.href)}>{v.label}</a>)}
+  <a href={dove('#contatti')} class="ev">{testi.nav.cta}</a>
+  <a href={altroHref} hreflang={altra} rel="alternate" class="lin">
     {testi.nav.altraLingua}
   </a>
 </div>
@@ -77,9 +85,11 @@ const altra: Lingua = lang === 'it' ? 'en' : 'it';
 
   /* la voce della sezione che si sta guardando resta accesa */
   const link = new Map<string, HTMLAnchorElement>();
-  document.querySelectorAll<HTMLAnchorElement>('.barra .voci a').forEach((a) =>
-    link.set(a.getAttribute('href')!.slice(1), a)
-  );
+  document.querySelectorAll<HTMLAnchorElement>('.barra .voci a').forEach((a) => {
+    // fuori dalla home l'href è «/#lavori», in home è «#lavori»: conta l'ancora
+    const id = a.getAttribute('href')!.split('#')[1];
+    if (id) link.set(id, a);
+  });
 
   const osservatore = new IntersectionObserver(
     (voci) => {
@@ -232,6 +242,12 @@ const altra: Lingua = lang === 'it' ? 'en' : 'it';
     padding: 0.6rem var(--bordo) 1.4rem;
     background: var(--giallo);
     box-shadow: 0 14px 20px -12px rgba(11, 11, 11, 0.3);
+  }
+
+  /* «display: grid» qui sopra batte il [hidden] del browser, che vale zero di
+     specificità: senza questa riga la tendina resta aperta per sempre */
+  .tendina[hidden] {
+    display: none;
   }
 
   .tendina a {

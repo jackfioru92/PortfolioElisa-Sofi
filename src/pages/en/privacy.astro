@@ -1,0 +1,16 @@
+---
+import Sito from '../../layouts/Sito.astro';
+import Barra from '../../components/sito/Barra.astro';
+import Privacy from '../../components/sito/Privacy.astro';
+import Chiusura from '../../components/sito/Chiusura.astro';
+import { t } from '../../data/testi';
+
+const lang = 'en' as const;
+const p = t(lang).privacy;
+---
+
+<Sito lang={lang} titolo={p.titoloPagina} descrizione={p.descrizione}>
+  <Barra lang={lang} />
+  <main><Privacy lang={lang} /></main>
+  <Chiusura lang={lang} />
+</Sito>
