@@ -63,6 +63,25 @@ export const progetti = [
 export const creativeVisual = '/img/deck/s05.webp';
 
 /**
+ * slide 10 — le locandine degli eventi, ritagliate una per una dalla griglia
+ * 4×3 della slide. I nomi sono quelli leggibili sulla locandina stessa.
+ */
+export const grafiche = [
+  { file: 'g01', titolo: 'Torneo Spritz Padel — picnic edition' },
+  { file: 'g02', titolo: 'Sex Mutants' },
+  { file: 'g03', titolo: 'Libera' },
+  { file: 'g04', titolo: 'Argonauti' },
+  { file: 'g05', titolo: 'Padel — finale Master Spritz' },
+  { file: 'g06', titolo: 'A Night at the Opera' },
+  { file: 'g07', titolo: 'Principi di Galles' },
+  { file: 'g08', titolo: 'God Save the Queen' },
+  { file: 'g09', titolo: 'Torneo Spritz Padel' },
+  { file: 'g10', titolo: 'Sour Music' },
+  { file: 'g11', titolo: 'Torneo Spritz Padel — Campari' },
+  { file: 'g12', titolo: 'Sushi Padel' },
+].map((g) => ({ ...g, img: `/img/grafiche/${g.file}.webp` }));
+
+/**
  * slide 23–35 — i reel girati e montati per i clienti.
  * L'abbinamento fra file e cliente arriva da VIDEO_SLIDES in Deck.astro, dove
  * era stato ricavato confrontando i fotogrammi con le tre colonne di ogni

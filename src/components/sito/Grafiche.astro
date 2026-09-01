@@ -1,0 +1,240 @@
+---
+import { grafiche, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+const g = testi.grafiche;
+---
+
+<section class="sezione grafiche" id="grafiche">
+  <div class="dentro">
+    <header class="testata">
+      <div>
+        <p class="occhiello">{g.occhiello}</p>
+        <h2>{g.titolo}<span class="corsivo">{g.titoloCorsivo}</span></h2>
+      </div>
+      <p class="intro">{g.intro}</p>
+    </header>
+
+    <ul class="muro">
+      {
+        grafiche.map((x) => (
+          <li>
+            <button class="tela" data-img={x.img} data-titolo={x.titolo}
+              aria-label={g.apri(x.titolo)}>
+              <img src={x.img} alt={x.titolo} width="395" height="381" loading="lazy"
+                decoding="async" />
+              <span class="lente" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="17" height="17">
+                  <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor"
+                    stroke-width="1.8" />
+                  <path d="M15.8 15.8L21 21M11 8.5v5M8.5 11h5" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<dialog class="vetrina" id="vetrina" aria-label={g.occhiello}>
+  <button class="chiudi" id="chiudi-grafica" aria-label={g.chiudi}>&times;</button>
+  <img id="grafica-grande" src="" alt="" />
+  <p class="didascalia" id="didascalia-grafica"></p>
+</dialog>
+
+<script>
+  const vetrina = document.getElementById('vetrina') as HTMLDialogElement;
+  const grande = document.getElementById('grafica-grande') as HTMLImageElement;
+  const didascalia = document.getElementById('didascalia-grafica')!;
+
+  /**
+   * La pulizia sta qui dentro, non nell'evento «close»: quell'evento non
+   * arriva su tutti i browser, e con Esc il dialog si chiude comunque da solo.
+   */
+  function chiudi() {
+    grande.removeAttribute('src');
+    if (vetrina.open) vetrina.close();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.tela').forEach((b) =>
+    b.addEventListener('click', () => {
+      grande.src = b.dataset.img!;
+      grande.alt = b.dataset.titolo!;
+      didascalia.textContent = b.dataset.titolo!;
+      vetrina.showModal();
+    })
+  );
+
+  document.getElementById('chiudi-grafica')!.addEventListener('click', chiudi);
+  vetrina.addEventListener('click', (e) => e.target === vetrina && chiudi());
+  /* Esc chiude il dialog da solo: intercettato qui perché «close» e «cancel»
+     non sono affidabili ovunque */
+  vetrina.addEventListener('cancel', chiudi);
+  vetrina.addEventListener('close', chiudi);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && vetrina.open) chiudi();
+  });
+</script>
+
+<style>
+  .grafiche {
+    background: var(--giallo-chiaro);
+  }
+
+  .testata {
+    display: grid;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .intro {
+    max-width: 28rem;
+    margin: 0;
+  }
+
+  /* colonne dichiarate a mano invece che con auto-fill: le locandine sono 12,
+     e lasciate libere diventavano una colonna sola sul telefono e nove
+     francobolli sul desktop */
+  .muro {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.6rem, 1.3vw, 1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 560px) {
+    .muro {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 820px) {
+    .muro {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1150px) {
+    .muro {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  .tela {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(11, 11, 11, 0.08);
+    cursor: pointer;
+    aspect-ratio: 395 / 381;
+  }
+
+  .tela img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.5s cubic-bezier(0.22, 0.72, 0.24, 1);
+  }
+
+  .tela:hover img {
+    scale: 1.05;
+  }
+
+  .lente {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(11, 11, 11, 0.55);
+    color: #fff;
+    opacity: 0;
+    translate: 0 6px;
+    transition: opacity 0.25s, translate 0.25s, background 0.25s, color 0.25s;
+  }
+
+  .tela:hover .lente,
+  .tela:focus-visible .lente {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .tela:hover .lente {
+    background: var(--giallo);
+    color: var(--nero);
+  }
+
+  /* ---- l'ingrandimento ---- */
+  .vetrina {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(92vw, 620px);
+    max-height: 92vh;
+    overflow: visible;
+  }
+
+  .vetrina::backdrop {
+    background: rgba(11, 11, 11, 0.92);
+  }
+
+  .vetrina img {
+    width: 100%;
+    height: auto;
+    max-height: 82vh;
+    object-fit: contain;
+    border-radius: 10px;
+    display: block;
+  }
+
+  .didascalia {
+    margin: 0.9rem 0 0;
+    color: var(--giallo-chiaro);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .chiudi {
+    position: absolute;
+    top: -2.4rem;
+    right: 0;
+    font-size: 2rem;
+    line-height: 1;
+    color: #fff;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .chiudi:hover {
+    opacity: 1;
+  }
+
+  @media (min-width: 900px) {
+    .testata {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+  }
+</style>

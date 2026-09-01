@@ -17,6 +17,7 @@ const it = {
   nav: {
     voci: [
       { label: 'Lavori', href: '#lavori' },
+      { label: 'Grafiche', href: '#grafiche' },
       { label: 'Reel', href: '#reel' },
       { label: 'Servizi', href: '#servizi' },
       { label: 'Studio', href: '#studio' },
@@ -55,6 +56,16 @@ const it = {
     titoloCorsivo: 'pubblicati.',
     intro: (n: number) => `${n} video verticali prodotti per i profili che seguiamo.`,
     guarda: (brand: string) => `Guarda il reel per ${brand}`,
+    chiudi: 'Chiudi',
+  },
+
+  grafiche: {
+    occhiello: 'Grafiche',
+    titolo: 'Locandine, ',
+    titoloCorsivo: 'una per evento.',
+    intro: `Serate, tornei e concerti: ogni appuntamento ha la sua immagine, pensata per
+      reggere sia sullo schermo del telefono sia stampata e appesa al muro.`,
+    apri: (titolo: string) => `Guarda «${titolo}» più grande`,
     chiudi: 'Chiudi',
   },
 
@@ -98,6 +109,10 @@ const it = {
       {
         titolo: 'Creative visual & manipulation design',
         testo: 'Visual, illustrazione e fotomanipolazione per campagne che si fanno guardare.',
+      },
+      {
+        titolo: 'Siti web & app',
+        testo: 'Siti, landing page e applicazioni: dal disegno delle schermate alla messa online.',
       },
     ],
   },
@@ -310,6 +325,7 @@ const en: Testi = {
   nav: {
     voci: [
       { label: 'Work', href: '#lavori' },
+      { label: 'Graphics', href: '#grafiche' },
       { label: 'Reel', href: '#reel' },
       { label: 'Services', href: '#servizi' },
       { label: 'Studio', href: '#studio' },
@@ -348,6 +364,16 @@ const en: Testi = {
     titoloCorsivo: 'published.',
     intro: (n: number) => `${n} vertical videos made for the profiles we look after.`,
     guarda: (brand: string) => `Play the reel for ${brand}`,
+    chiudi: 'Close',
+  },
+
+  grafiche: {
+    occhiello: 'Graphics',
+    titolo: 'Posters, ',
+    titoloCorsivo: 'one per event.',
+    intro: `Nights, tournaments and concerts: every event gets its own artwork, made to
+      work both on a phone screen and printed on a wall.`,
+    apri: (titolo: string) => `View “${titolo}” larger`,
     chiudi: 'Close',
   },
 
@@ -390,6 +416,10 @@ const en: Testi = {
       {
         titolo: 'Creative visual & manipulation design',
         testo: 'Visuals, illustration and photo manipulation for campaigns worth looking at.',
+      },
+      {
+        titolo: 'Websites & apps',
+        testo: 'Sites, landing pages and applications: from screen design to going live.',
       },
     ],
   },

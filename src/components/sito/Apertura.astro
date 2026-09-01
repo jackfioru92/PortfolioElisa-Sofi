@@ -76,12 +76,15 @@ const testi = t(lang);
     /* niente larghezza fissa: il blocco si stringe sulla riga più lunga
        («portf»), così il suo bordo destro resta sempre a filo, qualunque sia
        lo schermo, e non si formano vuoti */
-    right: 7%;
+    right: 5%;
     translate: 0 -52%;
     z-index: 0;
     display: inline-grid;
     justify-items: start;
-    font-size: min(14.5vw, 16rem);
+    /* un valore solo, senza scaglioni: a soglie fisse la parola finiva
+       addosso al titolo proprio al cambio. 20vw è il massimo che tiene
+       le distanze dal testo a ogni larghezza. */
+    font-size: min(20vw, 30rem);
     font-weight: 800;
     line-height: 0.78;
     letter-spacing: -0.05em;
@@ -185,7 +188,7 @@ const testi = t(lang);
     }
     .parolona {
       right: 5%;
-      font-size: min(16vw, 10rem);
+      font-size: min(17.5vw, 12rem);
       opacity: 0.5;
     }
   }

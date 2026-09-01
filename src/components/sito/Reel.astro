@@ -64,7 +64,13 @@ const testi = t(lang);
 
   document.getElementById('chiudi')!.addEventListener('click', ferma);
   teatro.addEventListener('click', (e) => e.target === teatro && ferma());
+  teatro.addEventListener('cancel', ferma);
   teatro.addEventListener('close', ferma);
+  /* Con Esc il dialog si chiude da solo, ma «close» non arriva su tutti i
+     browser: senza questo il video resterebbe a suonare da chiuso. */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && teatro.open) ferma();
+  });
 
   /* la striscia si trascina anche col mouse, non solo col dito */
   const pellicola = document.getElementById('pellicola')!;
