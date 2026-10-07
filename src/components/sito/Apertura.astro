@@ -188,7 +188,7 @@ const testi = t(lang);
     }
     .parolona {
       right: 5%;
-      font-size: min(17.5vw, 12rem);
+      font-size: min(26vw, 18rem);
       opacity: 0.5;
     }
   }
@@ -200,11 +200,13 @@ const testi = t(lang);
     }
     .parolona {
       top: auto;
-      bottom: 6.5rem;
-      right: 4%;
+      bottom: 5rem;
+      /* la parola sfora di proposito oltre il bordo: così resta grande
+         anche su schermi stretti, e il taglio fa parte dell'effetto */
+      right: -6%;
       translate: 0 0;
-      font-size: min(23vw, 8rem);
-      opacity: 0.32;
+      font-size: min(46vw, 15rem);
+      opacity: 0.3;
     }
     .nastro {
       position: relative;

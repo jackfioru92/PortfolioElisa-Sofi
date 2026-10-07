@@ -19,6 +19,7 @@ const it = {
       { label: 'Lavori', href: '#lavori' },
       { label: 'Grafiche', href: '#grafiche' },
       { label: 'Reel', href: '#reel' },
+      { label: 'App', href: '#app' },
       { label: 'Servizi', href: '#servizi' },
       { label: 'Studio', href: '#studio' },
       { label: 'Contatti', href: '#contatti' },
@@ -115,6 +116,31 @@ const it = {
         testo: 'Siti, landing page e applicazioni: dal disegno delle schermate alla messa online.',
       },
     ],
+  },
+
+
+  app: {
+    occhiello: 'Siti web & app',
+    titolo: 'Progetti che stanno<br /> in ',
+    titoloCorsivo: 'tasca.',
+    intro:
+      'Applicazioni pubblicate su App Store e Google Play: dal disegno delle schermate alla messa online, per Android e iPhone.',
+    store: { ios: 'App Store', android: 'Google Play' },
+    apri: (nome: string) => `Apri ${nome} sullo store`,
+    schede: {
+      'nuova-alba': {
+        nome: 'Nuova Alba Calcio',
+        tipo: 'Sport',
+        testo:
+          'L’app ufficiale della società: risultati, classifiche e vita del club sempre a portata di mano per tifosi e genitori.',
+      },
+      wikiacqua: {
+        nome: 'WikiAcqua',
+        tipo: 'Food & Drink',
+        testo:
+          'Il primo portale dedicato alle acque minerali italiane: schede, etichette e ricerca, per dare valore a quello che si beve.',
+      },
+    },
   },
 
   studio: {
@@ -327,6 +353,7 @@ const en: Testi = {
       { label: 'Work', href: '#lavori' },
       { label: 'Graphics', href: '#grafiche' },
       { label: 'Reel', href: '#reel' },
+      { label: 'Apps', href: '#app' },
       { label: 'Services', href: '#servizi' },
       { label: 'Studio', href: '#studio' },
       { label: 'Contact', href: '#contatti' },
@@ -422,6 +449,31 @@ const en: Testi = {
         testo: 'Sites, landing pages and applications: from screen design to going live.',
       },
     ],
+  },
+
+
+  app: {
+    occhiello: 'Websites & apps',
+    titolo: 'Projects that fit<br /> in your ',
+    titoloCorsivo: 'pocket.',
+    intro:
+      'Applications published on the App Store and Google Play: from screen design to going live, for both Android and iPhone.',
+    store: { ios: 'App Store', android: 'Google Play' },
+    apri: (nome: string) => `Open ${nome} on the store`,
+    schede: {
+      'nuova-alba': {
+        nome: 'Nuova Alba Calcio',
+        tipo: 'Sports',
+        testo:
+          'The club’s official app: results, standings and team life always at hand, for supporters and parents alike.',
+      },
+      wikiacqua: {
+        nome: 'WikiAcqua',
+        tipo: 'Food & Drink',
+        testo:
+          'The first portal devoted to Italian mineral waters: profiles, labels and search, to give value to what you drink.',
+      },
+    },
   },
 
   studio: {

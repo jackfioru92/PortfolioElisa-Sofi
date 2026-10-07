@@ -1,0 +1,170 @@
+---
+import { app, type Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+const a = testi.app;
+---
+
+<section class="sezione app" id="app">
+  <div class="dentro">
+    <header class="testata">
+      <div>
+        <p class="occhiello">{a.occhiello}</p>
+        <h2><Fragment set:html={a.titolo} /><span class="corsivo">{a.titoloCorsivo}</span></h2>
+      </div>
+      <p class="intro">{a.intro}</p>
+    </header>
+
+    <ul class="elenco">
+      {
+        app.map((x) => {
+          const s = a.schede[x.slug as keyof typeof a.schede];
+          return (
+            <li class="scheda">
+              <img
+                class="icona"
+                src={x.icona}
+                alt={s.nome}
+                width="180"
+                height="180"
+                loading="lazy"
+                decoding="async"
+              />
+
+              <div class="corpo">
+                <p class="tipo">{s.tipo}</p>
+                <h3>{s.nome}</h3>
+                <p class="testo">{s.testo}</p>
+
+                <div class="store">
+                  <a href={x.ios} target="_blank" rel="noopener noreferrer"
+                    aria-label={a.apri(s.nome)}>
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                      <path fill="currentColor" d="M16.4 12.7c0-2.2 1.8-3.3 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.9-3.6 2.2-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.1 0 1.9-1 2.6-2.1.8-1.2 1.2-2.4 1.2-2.4s-2.2-.9-2.2-3.5ZM14.3 5.6c.6-.7 1-1.7.9-2.6-.9 0-2 .6-2.6 1.3-.6.6-1 1.6-.9 2.6 1 0 2-.5 2.6-1.3Z"/>
+                    </svg>
+                    {a.store.ios}
+                  </a>
+
+                  <a href={x.android} target="_blank" rel="noopener noreferrer"
+                    aria-label={a.apri(s.nome)}>
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                      <path fill="currentColor" d="M3.6 2.3a1 1 0 0 0-.5.9v17.6a1 1 0 0 0 .5.9l9.3-9.7-9.3-9.7Zm10.7 8.3 2.6-2.7-9.1-5.2 6.5 7.9Zm0 2.8-6.5 7.9 9.1-5.2-2.6-2.7Zm1.4-1.4 3.1 1.8c.8.5.8 1.6 0 2l-3.1 1.8-2.8-2.8 2.8-2.8Z"/>
+                    </svg>
+                    {a.store.android}
+                  </a>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .app {
+    background: var(--crema, #f7efe2);
+  }
+
+  .elenco {
+    list-style: none;
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+  }
+
+  .scheda {
+    display: flex;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    align-items: flex-start;
+    padding: clamp(1.25rem, 3vw, 1.9rem);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
+  }
+  .scheda:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.09);
+  }
+
+  .icona {
+    flex: none;
+    width: clamp(66px, 15vw, 84px);
+    height: auto;
+    border-radius: 20%;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  }
+
+  .corpo {
+    min-width: 0;
+  }
+
+  .tipo {
+    margin: 0 0 0.3rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.45);
+  }
+
+  .scheda h3 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+    line-height: 1.15;
+  }
+
+  .testo {
+    margin: 0 0 1.1rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.66);
+  }
+
+  .store {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .store a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.44rem 0.85rem;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+  .store a:hover {
+    background: var(--nero, #111);
+    border-color: var(--nero, #111);
+    color: #fff;
+  }
+
+  @media (max-width: 420px) {
+    .scheda {
+      flex-direction: column;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scheda,
+    .scheda:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

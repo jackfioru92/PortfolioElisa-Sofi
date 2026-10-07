@@ -118,3 +118,21 @@ export function gemella(pathname: string, lang: Lingua): string {
   const senzaEn = pulito.replace(/^\/en(?=\/)/, '');
   return senzaEn || '/';
 }
+
+/* Le app pubblicate sullo store, Android e iOS. Gli indirizzi sono quelli
+   ufficiali delle schede: su App Store risultano pubblicate da Elisa Zetti. */
+export const app = [
+  {
+    slug: 'nuova-alba',
+    icona: '/img/app/nuova-alba.webp',
+    android:
+      'https://play.google.com/store/apps/details?id=com.nuovaalba.app_nuova_alba_calcio',
+    ios: 'https://apps.apple.com/it/app/nuova-alba-calcio/id6751629021',
+  },
+  {
+    slug: 'wikiacqua',
+    icona: '/img/app/wikiacqua.webp',
+    android: 'https://play.google.com/store/apps/details?id=it.agorasoft.wikiacqua',
+    ios: 'https://apps.apple.com/it/app/wikiacqua/id6502108018',
+  },
+] as const;
