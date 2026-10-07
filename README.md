@@ -24,6 +24,10 @@ serviva sapere qualcosa, la risposta era in una slide.
 | I reel | 23–35 |
 | Contatti | 36 |
 
+Fa eccezione la sezione **App**: le due applicazioni non erano nel Keynote. I
+dati vengono dalle schede ufficiali degli store (su App Store risultano
+pubblicate da Elisa Zetti), le icone sono quelle degli store ridotte a 360px.
+
 Anche i **colori** sono campionati dalle slide, non presi a occhio: giallo
 `#FAB415`, fucsia `#EC18E6`, crema `#FEDE8E`, nero `#0B0B0B`. Il lettering
 *Beyond the Visual* e *Let's Connect* è ritagliato e scontornato dalle slide vere,
@@ -34,7 +38,20 @@ non ridisegnato.
 | **Peso pagina** | ~42 KB di HTML + 25 KB di CSS |
 | **Progetti** | 7, filtrabili per categoria |
 | **Reel** | 21 video verticali 720×1280 |
+| **App** | 2, con i collegamenti ad App Store e Google Play |
 | **JavaScript** | nessuna libreria: le animazioni sono CSS |
+
+---
+
+## I recapiti
+
+Telefono, WhatsApp ed email stanno **solo** in `src/data/studio.ts`: tutto il
+sito li legge da lì, quindi si cambiano in un punto. Il numero compare poi come
+`tel:`, come link `wa.me` (anche quello col messaggio già scritto) e nei dati
+per i motori di ricerca.
+
+L'ultima slide del Keynote li aveva stampati dentro l'immagine: `s36.webp` è
+stata ritoccata, l'originale resta nella storia di git.
 
 ---
 
@@ -87,6 +104,36 @@ ogni slide.
 
 ---
 
+## Le app
+
+Le due applicazioni pubblicate stanno in `app` dentro `src/data/studio.ts`:
+
+```ts
+{ slug: 'wikiacqua',
+  icona: '/img/app/wikiacqua.webp',
+  android: 'https://play.google.com/store/apps/details?id=it.agorasoft.wikiacqua',
+  ios: 'https://apps.apple.com/it/app/wikiacqua/id6502108018' }
+```
+
+Nome, categoria e descrizione stanno invece in `testi.ts` sotto `app.schede`,
+nelle due lingue, agganciati allo stesso `slug`.
+
+**Per aggiungerne una** servono tre cose: la riga in `studio.ts`, la scheda in
+`testi.ts` (IT ed EN) e l'icona in `public/img/app/`. L'icona si prende dalla
+scheda Apple senza aprire il browser:
+
+```bash
+curl -s "https://itunes.apple.com/search?term=NOME&entity=software&country=it" \
+  | python3 -c "import sys,json; r=json.load(sys.stdin)['results'][0]; print(r['trackViewUrl'], r['artworkUrl512'])"
+```
+
+Il link Android non si ricava da lì: va preso dalla scheda del Play Store. Se si
+ha solo una ricerca, l'identificativo del pacchetto è spesso lo stesso del
+`bundleId` iOS (è così per WikiAcqua, `it.agorasoft.wikiacqua`, ma **non** per
+Nuova Alba Calcio, che su Android è `com.nuovaalba.app_nuova_alba_calcio`).
+
+---
+
 ## Il form dei contatti
 
 Il tasto **apre il programma di posta** di chi scrive, con il messaggio già
@@ -126,8 +173,13 @@ src/
     Pagina.astro         ← monta le sezioni; le due lingue usano questa
     Barra.astro          ← barra in alto, selettore IT/EN, menu del telefono
     Apertura.astro       ← titolo, parola sfocata, nastro «Beyond the Visual»
+                           (la parola è testo, non un'immagine: la misura è il
+                            `font-size` di `.parolona`, diverso per telefono,
+                            tablet e desktop; sfora a destra di proposito e
+                            viene tagliata da `.apertura`)
     Lavori.astro         ← i sette progetti, con i filtri
     Reel.astro           ← la striscia dei 21 video verticali
+    App.astro            ← le app pubblicate, con i pulsanti degli store
     Numeri.astro         ← la crescita dei profili seguiti
     Servizi.astro  Studio.astro  Contatti.astro  Chiusura.astro
   layouts/Sito.astro     ← head, SEO, hreflang, dati per i motori di ricerca
@@ -146,6 +198,7 @@ src/
 public/
   img/deck/              ← s01…s36 (piene) e s01@sm… (leggere)
   img/reel/              ← i fermo-immagine dei 21 video
+  img/app/               ← le icone delle app
   img/work/              ← ritagli dei progetti e i due lettering scontornati
   img/logo/              ← marchio originale + versioni nera e bianca
   video/                 ← v733…v830.mp4

@@ -81,19 +81,25 @@ const a = testi.app;
     gap: clamp(1rem, 2.5vw, 1.75rem);
   }
 
+  /* niente riquadro: le schede stanno direttamente sul fondo della sezione */
   .scheda {
     display: flex;
     gap: clamp(1rem, 2.5vw, 1.5rem);
     align-items: flex-start;
-    padding: clamp(1.25rem, 3vw, 1.9rem);
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
+    padding: 0;
   }
-  .scheda:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.09);
+
+  /* alla seconda scheda in poi, su una colonna sola, una riga sottile fa da
+     stacco al posto del bordo del riquadro */
+  .scheda + .scheda {
+    padding-top: clamp(1.5rem, 4vw, 2.25rem);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  @media (min-width: 760px) {
+    .scheda + .scheda {
+      padding-top: 0;
+      border-top: 0;
+    }
   }
 
   .icona {
@@ -102,6 +108,10 @@ const a = testi.app;
     height: auto;
     border-radius: 20%;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .scheda:hover .icona {
+    transform: translateY(-3px);
   }
 
   .corpo {
@@ -161,8 +171,8 @@ const a = testi.app;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .scheda,
-    .scheda:hover {
+    .icona,
+    .scheda:hover .icona {
       transition: none;
       transform: none;
     }
