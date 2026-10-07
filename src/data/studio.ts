@@ -27,11 +27,11 @@ export const studio = {
      consegna le richieste. Nel Keynote (slide 36) c'era ancora un indirizzo
      gmail, ma non si usa più. */
   email: 'info@secreative.it',
-  telefono: '+39 351 437 4436',
-  telefonoRaw: '+393514374436',
+  telefono: '+39 346 540 5949',
+  telefonoRaw: '+393465405949',
 
   /* wa.me vuole il numero senza + e senza spazi */
-  whatsapp: '393514374436',
+  whatsapp: '393465405949',
 
   /* solo il nome utente: il «?igsi=…» dei link condivisi è un codice di
      tracciamento e non serve a raggiungere il profilo */
