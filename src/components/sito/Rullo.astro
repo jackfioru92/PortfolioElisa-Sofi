@@ -1,0 +1,162 @@
+---
+import type { Lingua } from '../../data/studio';
+import { t } from '../../data/testi';
+
+interface Props {
+  lang: Lingua;
+}
+const { lang } = Astro.props;
+const testi = t(lang);
+const r = testi.rullo;
+
+/* La lista è ripetuta due volte: il nastro scorre di metà altezza e poi
+   riparte: così il giro si chiude senza stacco. */
+const parole = [...r.parole, ...r.parole];
+const passo = r.parole.length;
+
+/* Un passo ogni 1/n del tempo: fermo per gran parte, poi lo scatto verso la
+   parola dopo. I fotogrammi si generano qui perché dipendono da quante parole
+   sono: aggiungerne una non richiede di toccare il CSS. */
+const fetta = 100 / passo;
+const fermo = fetta * 0.82; // quanto resta ferma prima di ripartire
+const tappe = Array.from({ length: passo + 1 }, (_, i) => {
+  const da = (i * fetta).toFixed(3);
+  const a = Math.min(i * fetta + fermo, 100).toFixed(3);
+  const y = `calc(var(--riga) * -${i})`;
+  return i === passo
+    ? `100% { transform: translateY(${y}); }`
+    : `${da}%, ${a}% { transform: translateY(${y}); }`;
+}).join('\n    ');
+const keyframes = `@keyframes scorri {\n    ${tappe}\n  }`;
+---
+
+<section class="sezione rullo" id="rullo" aria-labelledby="rullo-titolo">
+  <div class="dentro">
+    <p class="occhiello">{r.occhiello}</p>
+    <h2 id="rullo-titolo">
+      <Fragment set:html={r.titolo} /><span class="corsivo">{r.titoloCorsivo}</span>
+    </h2>
+    <p class="intro">{r.intro}</p>
+  </div>
+
+  <!-- l'elenco vero, per chi legge con la tastiera o con uno screen reader -->
+  <ul class="sr-only">
+    {r.parole.map((p) => <li>{p}</li>)}
+  </ul>
+
+  <div class="finestra" aria-hidden="true">
+    <div class="nastro" style={`--passo:${passo}`}>
+      {parole.map((p) => <span class="voce">{p}</span>)}
+    </div>
+    <div class="velo velo-su"></div>
+    <div class="velo velo-giu"></div>
+  </div>
+</section>
+
+<style set:html={keyframes}></style>
+
+<style>
+  .rullo {
+    background: var(--nero);
+    color: var(--bianco);
+    overflow: hidden;
+    padding-block: clamp(3.5rem, 9vw, 6.5rem);
+  }
+
+  .rullo .occhiello {
+    color: var(--giallo);
+  }
+  .rullo h2 {
+    color: var(--bianco);
+  }
+  .rullo .intro {
+    color: rgba(255, 253, 247, 0.62);
+    max-width: 46ch;
+    margin-top: 1rem;
+  }
+
+  .finestra {
+    position: relative;
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+    /* tre righe visibili: quella al centro è la protagonista */
+    height: calc(var(--riga) * 3);
+    --riga: clamp(3.4rem, 11vw, 7.5rem);
+    overflow: hidden;
+  }
+
+  .nastro {
+    display: flex;
+    flex-direction: column;
+    /* un passo per ogni parola, più una pausa alla fine di ciascuna */
+    animation: scorri calc(var(--passo) * 2.1s) cubic-bezier(0.76, 0, 0.24, 1) infinite;
+  }
+
+  .voce {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--riga);
+    flex: none;
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(2.3rem, 9.5vw, 6.4rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--bianco);
+  }
+
+  /* sfuma sopra e sotto, così le parole non entrano di colpo */
+  .velo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--riga);
+    pointer-events: none;
+  }
+  .velo-su {
+    top: 0;
+    background: linear-gradient(var(--nero) 45%, rgba(11, 11, 11, 0.82) 88%, transparent);
+  }
+  .velo-giu {
+    bottom: 0;
+    background: linear-gradient(transparent, rgba(11, 11, 11, 0.82) 12%, var(--nero) 55%);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* chi ha chiesto meno movimento vede l'elenco fermo, tutto leggibile */
+  @media (prefers-reduced-motion: reduce) {
+    .nastro {
+      animation: none;
+    }
+    .finestra {
+      height: auto;
+    }
+    .voce {
+      color: inherit;
+      font-size: clamp(1.6rem, 6vw, 3rem);
+      justify-content: flex-start;
+      padding-inline: var(--bordo);
+      height: auto;
+      padding-block: 0.25rem;
+    }
+    .voce:nth-child(n + 7) {
+      display: none;
+    }
+    .velo {
+      display: none;
+    }
+  }
+</style>

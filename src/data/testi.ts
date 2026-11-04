@@ -143,6 +143,23 @@ const it = {
     },
   },
 
+
+  rullo: {
+    occhiello: 'I nostri servizi',
+    titolo: 'Tutto quello<br /> che ',
+    titoloCorsivo: 'serve.',
+    intro:
+      'Dall’analisi all’esecuzione, fino all’ultimo dettaglio. Per brand che non seguono: decidono.',
+    parole: [
+      'Brand Identity',
+      'Packaging',
+      'Social Media',
+      'Creative Visual',
+      'Video',
+      'Web & App',
+    ],
+  },
+
   studio: {
     occhiello: 'Studio',
     racconto: [
@@ -474,6 +491,23 @@ const en: Testi = {
           'The first portal devoted to Italian mineral waters: profiles, labels and search, to give value to what you drink.',
       },
     },
+  },
+
+
+  rullo: {
+    occhiello: 'What we do',
+    titolo: 'Everything<br /> you ',
+    titoloCorsivo: 'need.',
+    intro:
+      'From the first analysis to the final detail. For brands that do not follow: they decide.',
+    parole: [
+      'Brand Identity',
+      'Packaging',
+      'Social Media',
+      'Creative Visual',
+      'Video',
+      'Web & App',
+    ],
   },
 
   studio: {
