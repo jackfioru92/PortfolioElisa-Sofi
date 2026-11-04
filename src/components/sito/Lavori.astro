@@ -18,7 +18,7 @@ const categorie = [...new Set(progetti.map((p) => p.categoria))];
         <p class="occhiello">{testi.lavori.occhiello}</p>
         <h2>{testi.lavori.titolo}<span class="corsivo">{testi.lavori.titoloCorsivo}</span></h2>
       </div>
-      <p class="intro">{testi.lavori.intro}</p>
+      <p class="intro" data-scrivi>{testi.lavori.intro}</p>
     </header>
 
     <div class="filtri" role="group" aria-label={testi.lavori.filtra}>

@@ -80,5 +80,88 @@ const jsonLd = {
 
   <body>
     <slot />
+
+    <script>
+      /**
+       * Testo che si scrive da solo, come nella storia di riferimento.
+       * Si attiva su qualsiasi elemento con `data-scrivi` e parte quando
+       * quell'elemento entra davvero nello schermo, non al caricamento:
+       * altrimenti chi arriva piu' in basso lo troverebbe gia' finito.
+       *
+       * Il testo vero resta sempre nella pagina, nascosto alla vista ma
+       * leggibile da Google e dagli screen reader: a scriversi e' una copia
+       * marcata `aria-hidden`. Cosi' l'effetto non toglie niente a nessuno.
+       */
+      const daScrivere = document.querySelectorAll<HTMLElement>('[data-scrivi]');
+
+      if (daScrivere.length) {
+        const fermo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const VELOCITA = 22; // millisecondi per carattere (~45 al secondo)
+        const RESPIRO = 180; // pausa in piu' dopo un punto
+
+        daScrivere.forEach((el) => {
+          const testo = (el.textContent || '').trim();
+          if (!testo) return;
+
+          el.textContent = '';
+
+          const vero = document.createElement('span');
+          vero.className = 'solo-lettori';
+          vero.textContent = testo;
+
+          const finto = document.createElement('span');
+          finto.setAttribute('aria-hidden', 'true');
+
+          el.append(vero, finto);
+
+          // a movimento ridotto il testo c'e' e basta
+          if (fermo) {
+            finto.textContent = testo;
+            return;
+          }
+
+          // lo spazio resta occupato: la pagina non sobbalza mentre scrive
+          el.style.minHeight = `${el.getBoundingClientRect().height}px`;
+
+          let i = 0;
+          const scrivi = () => {
+            finto.textContent = testo.slice(0, ++i);
+            if (i >= testo.length) {
+              el.style.minHeight = '';
+              return;
+            }
+            const appenaScritto = testo[i - 1];
+            setTimeout(scrivi, appenaScritto === '.' ? VELOCITA + RESPIRO : VELOCITA);
+          };
+
+          new IntersectionObserver(
+            (voci, osservatore) => {
+              for (const v of voci) {
+                if (!v.isIntersecting) continue;
+                osservatore.disconnect();
+                setTimeout(scrivi, 160);
+              }
+            },
+            { threshold: 0.6 }
+          ).observe(el);
+        });
+      }
+    </script>
+
+    <style is:global>
+      /* il testo vero: c'e', ma non si vede */
+      .solo-lettori {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
   </body>
 </html>
