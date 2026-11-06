@@ -15,7 +15,7 @@ const g = testi.grafiche;
     <header class="testata">
       <div>
         <p class="occhiello">{g.occhiello}</p>
-        <h2>{g.titolo}<span class="corsivo">{g.titoloCorsivo}</span></h2>
+        <h2 data-rivela>{g.titolo}<span class="corsivo">{g.titoloCorsivo}</span></h2>
       </div>
       <p class="intro">{g.intro}</p>
     </header>
@@ -24,7 +24,7 @@ const g = testi.grafiche;
       {
         grafiche.map((x) => (
           <li>
-            <button class="tela" data-img={x.img} data-titolo={x.titolo}
+            <button class="tela" data-punta={g.punta} data-img={x.img} data-titolo={x.titolo}
               aria-label={g.apri(x.titolo)}>
               <img src={x.img} alt={x.titolo} width="395" height="381" loading="lazy"
                 decoding="async" />

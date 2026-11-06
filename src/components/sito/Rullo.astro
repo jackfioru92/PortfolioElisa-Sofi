@@ -9,58 +9,77 @@ const { lang } = Astro.props;
 const testi = t(lang);
 const r = testi.rullo;
 
-/* La lista è ripetuta due volte: il nastro scorre di metà altezza e poi
-   riparte: così il giro si chiude senza stacco. */
-const parole = [...r.parole, ...r.parole];
-const passo = r.parole.length;
-
-/* Un passo ogni 1/n del tempo: fermo per gran parte, poi lo scatto verso la
-   parola dopo. I fotogrammi si generano qui perché dipendono da quante parole
-   sono: aggiungerne una non richiede di toccare il CSS. */
-const fetta = 100 / passo;
-const fermo = fetta * 0.82; // quanto resta ferma prima di ripartire
-const tappe = Array.from({ length: passo + 1 }, (_, i) => {
-  const da = (i * fetta).toFixed(3);
-  const a = Math.min(i * fetta + fermo, 100).toFixed(3);
-  const y = `calc(var(--riga) * -${i})`;
-  return i === passo
-    ? `100% { transform: translateY(${y}); }`
-    : `${da}%, ${a}% { transform: translateY(${y}); }`;
-}).join('\n    ');
-const keyframes = `@keyframes scorri {\n    ${tappe}\n  }`;
+/**
+ * Due nastri che scorrono di lato in direzioni opposte, come nella versione
+ * mandata dal cliente: sopra le parole piene in giallo separate da un
+ * asterisco, sotto le stesse in corsivo a contorno vuoto.
+ *
+ * Ogni nastro contiene la lista due volte e scorre esattamente di metà: al
+ * termine si ritrova nella posizione di partenza e riparte senza stacco.
+ */
+const giro = [...r.parole, ...r.parole];
 ---
 
 <section class="sezione rullo" id="rullo" aria-labelledby="rullo-titolo">
   <div class="dentro">
-    <p class="occhiello">{r.occhiello}</p>
-    <h2 id="rullo-titolo">
-      <Fragment set:html={r.titolo} /><span class="corsivo">{r.titoloCorsivo}</span>
-    </h2>
-    <p class="intro" data-scrivi>{r.intro}</p>
+    <header class="testata">
+      <div>
+        <p class="occhiello">{r.occhiello}</p>
+        <h2 id="rullo-titolo" data-rivela>
+          <Fragment set:html={r.titolo} /><span class="corsivo">{r.titoloCorsivo}</span>
+        </h2>
+      </div>
+      <p class="intro" data-scrivi>{r.intro}</p>
+    </header>
   </div>
 
   <!-- l'elenco vero, per chi legge con la tastiera o con uno screen reader -->
-  <ul class="sr-only">
+  <ul class="solo-lettori">
     {r.parole.map((p) => <li>{p}</li>)}
   </ul>
 
-  <div class="finestra" aria-hidden="true">
-    <div class="nastro" style={`--passo:${passo}`}>
-      {parole.map((p) => <span class="voce">{p}</span>)}
+  <div class="nastri" aria-hidden="true">
+    <div class="nastro pieno">
+      <div class="scorre">
+        {
+          giro.map((p) => (
+            <span class="parola">
+              {p}
+              <i class="stella">✻</i>
+            </span>
+          ))
+        }
+      </div>
     </div>
-    <div class="velo velo-su"></div>
-    <div class="velo velo-giu"></div>
+
+    <div class="nastro vuoto">
+      <div class="scorre indietro">
+        {
+          giro.map((p) => (
+            <span class="parola">
+              {p}
+              <i class="barra">/</i>
+            </span>
+          ))
+        }
+      </div>
+    </div>
   </div>
 </section>
-
-<style set:html={keyframes}></style>
 
 <style>
   .rullo {
     background: var(--nero);
     color: var(--bianco);
     overflow: hidden;
-    padding-block: clamp(3.5rem, 9vw, 6.5rem);
+    padding-block: clamp(3.5rem, 9vw, 6rem);
+  }
+
+  .testata {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem 3rem;
+    align-items: end;
   }
 
   .rullo .occhiello {
@@ -71,60 +90,77 @@ const keyframes = `@keyframes scorri {\n    ${tappe}\n  }`;
   }
   .rullo .intro {
     color: rgba(255, 253, 247, 0.62);
-    max-width: 46ch;
-    margin-top: 1rem;
+    max-width: 44ch;
   }
 
-  .finestra {
-    position: relative;
-    margin-top: clamp(2rem, 5vw, 3.5rem);
-    /* tre righe visibili: quella al centro è la protagonista */
-    height: calc(var(--riga) * 3);
-    --riga: clamp(3.4rem, 11vw, 7.5rem);
-    overflow: hidden;
+  .nastri {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.1rem, 0.5vw, 0.4rem);
   }
 
   .nastro {
-    display: flex;
-    flex-direction: column;
-    /* un passo per ogni parola, più una pausa alla fine di ciascuna */
-    animation: scorri calc(var(--passo) * 2.1s) cubic-bezier(0.76, 0, 0.24, 1) infinite;
+    overflow: hidden;
   }
 
-  .voce {
+  .scorre {
     display: flex;
+    width: max-content;
+    animation: nastro 34s linear infinite;
+  }
+  .scorre.indietro {
+    animation-direction: reverse;
+    animation-duration: 40s; /* leggermente diversa: i due nastri non vanno a tempo */
+  }
+
+  @keyframes nastro {
+    to {
+      /* metà esatta: la lista è ripetuta due volte */
+      transform: translateX(-50%);
+    }
+  }
+
+  .parola {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    height: var(--riga);
-    flex: none;
+    gap: clamp(0.5rem, 1.6vw, 1.5rem);
+    padding-right: clamp(0.5rem, 1.6vw, 1.5rem);
+    white-space: nowrap;
+    line-height: 1.05;
+  }
+
+  /* nastro di sopra: pieno, giallo, grasso */
+  .pieno .parola {
     font-family: var(--sans);
     font-weight: 800;
-    font-size: clamp(2.3rem, 9.5vw, 6.4rem);
-    line-height: 1;
+    font-size: clamp(2.1rem, 7.2vw, 5.6rem);
     letter-spacing: -0.03em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--bianco);
+    color: var(--giallo);
+  }
+  .stella {
+    font-style: normal;
+    font-size: 0.42em;
+    color: var(--fucsia);
+    translate: 0 -0.15em;
   }
 
-  /* sfuma sopra e sotto, così le parole non entrano di colpo */
-  .velo {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: var(--riga);
-    pointer-events: none;
+  /* nastro di sotto: corsivo, solo il contorno */
+  .vuoto .parola {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 6.6vw, 5.2rem);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 253, 247, 0.38);
   }
-  .velo-su {
-    top: 0;
-    background: linear-gradient(var(--nero) 45%, rgba(11, 11, 11, 0.82) 88%, transparent);
-  }
-  .velo-giu {
-    bottom: 0;
-    background: linear-gradient(transparent, rgba(11, 11, 11, 0.82) 12%, var(--nero) 55%);
+  .barra {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 253, 247, 0.22);
   }
 
-  .sr-only {
+  .solo-lettori {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -136,26 +172,22 @@ const keyframes = `@keyframes scorri {\n    ${tappe}\n  }`;
     border: 0;
   }
 
-  /* chi ha chiesto meno movimento vede l'elenco fermo, tutto leggibile */
+  @media (max-width: 860px) {
+    .testata {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+  }
+
+  /* chi ha chiesto meno movimento vede le parole ferme, senza scorrimento */
   @media (prefers-reduced-motion: reduce) {
-    .nastro {
+    .scorre {
       animation: none;
-    }
-    .finestra {
-      height: auto;
-    }
-    .voce {
-      color: inherit;
-      font-size: clamp(1.6rem, 6vw, 3rem);
-      justify-content: flex-start;
+      flex-wrap: wrap;
+      width: 100%;
       padding-inline: var(--bordo);
-      height: auto;
-      padding-block: 0.25rem;
     }
-    .voce:nth-child(n + 7) {
-      display: none;
-    }
-    .velo {
+    .vuoto {
       display: none;
     }
   }

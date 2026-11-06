@@ -57,6 +57,7 @@ const it = {
     titoloCorsivo: 'pubblicati.',
     intro: (n: number) => `${n} video verticali prodotti per i profili che seguiamo.`,
     guarda: (brand: string) => `Guarda il reel per ${brand}`,
+    punta: 'play',
     chiudi: 'Chiudi',
   },
 
@@ -67,6 +68,7 @@ const it = {
     intro: `Serate, tornei e concerti: ogni appuntamento ha la sua immagine, pensata per
       reggere sia sullo schermo del telefono sia stampata e appesa al muro.`,
     apri: (titolo: string) => `Guarda «${titolo}» più grande`,
+    punta: 'apri',
     chiudi: 'Chiudi',
   },
 
@@ -408,6 +410,7 @@ const en: Testi = {
     titoloCorsivo: 'published.',
     intro: (n: number) => `${n} vertical videos made for the profiles we look after.`,
     guarda: (brand: string) => `Play the reel for ${brand}`,
+    punta: 'play',
     chiudi: 'Close',
   },
 
@@ -418,6 +421,7 @@ const en: Testi = {
     intro: `Nights, tournaments and concerts: every event gets its own artwork, made to
       work both on a phone screen and printed on a wall.`,
     apri: (titolo: string) => `View “${titolo}” larger`,
+    punta: 'open',
     chiudi: 'Close',
   },
 

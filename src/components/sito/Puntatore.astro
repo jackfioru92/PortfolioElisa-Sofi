@@ -1,0 +1,174 @@
+---
+/**
+ * Il pallino fucsia che segue il mouse, come nella versione mandata dal cliente.
+ *
+ * Il cursore vero del sistema resta visibile: nasconderlo fa perdere il segnale
+ * che distingue un link da un testo, e su un sito che deve far scrivere la gente
+ * non conviene. Il pallino si aggiunge, non sostituisce.
+ *
+ * Non compare su telefoni e tablet (non c'è un puntatore da seguire) né per chi
+ * ha chiesto meno movimento.
+ */
+---
+
+<div class="puntatore" id="puntatore" aria-hidden="true"><span class="parola" id="puntatore-parola"></span></div>
+
+<script>
+  const palla = document.getElementById('puntatore');
+  const parola = document.getElementById('puntatore-parola')!;
+
+  const haPuntatore = matchMedia('(pointer: fine)').matches;
+  const menoMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (palla && haPuntatore && !menoMovimento) {
+    let mouseX = innerWidth / 2;
+    let mouseY = innerHeight / 2;
+    let x = mouseX;
+    let y = mouseY;
+    let visibile = false;
+    let fermo = false;
+
+    addEventListener(
+      'pointermove',
+      (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!visibile) {
+          visibile = true;
+          // il primo posizionamento è secco: senza, il pallino arriverebbe
+          // scivolando dal centro dello schermo
+          x = mouseX;
+          y = mouseY;
+          palla.classList.add('acceso');
+        }
+        const sotto = e.target as HTMLElement | null;
+
+        // se l'elemento dichiara un'azione, il pallino diventa quella parola
+        const conAzione = sotto?.closest<HTMLElement>('[data-punta]');
+        const azione = conAzione?.dataset.punta?.trim();
+
+        if (azione) {
+          if (parola.textContent !== azione) parola.textContent = azione;
+          palla.classList.add('azione');
+          palla.classList.remove('largo');
+        } else {
+          palla.classList.remove('azione');
+          // sopra un link o un campo si allarga e si svuota
+          palla.classList.toggle(
+            'largo',
+            !!sotto?.closest('a, button, input, textarea, select, [role="button"]')
+          );
+        }
+      },
+      { passive: true }
+    );
+
+    // esce dalla finestra: il pallino sparisce invece di restare appeso al bordo
+    addEventListener('pointerleave', () => {
+      visibile = false;
+      palla.classList.remove('acceso');
+    });
+    addEventListener('pointerdown', () => palla.classList.add('premuto'));
+    addEventListener('pointerup', () => palla.classList.remove('premuto'));
+
+    const passo = () => {
+      // insegue con un filo di ritardo: e' quel ritardo a dargli peso
+      x += (mouseX - x) * 0.18;
+      y += (mouseY - y) * 0.18;
+      palla.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      if (!fermo) requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo);
+
+    // con la scheda in secondo piano il ciclo si ferma: niente lavoro a vuoto
+    document.addEventListener('visibilitychange', () => {
+      fermo = document.hidden;
+      if (!fermo) requestAnimationFrame(passo);
+    });
+  }
+</script>
+
+<style>
+  .puntatore {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--fucsia);
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity 0.25s ease,
+      width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.25s ease,
+      border-width 0.25s ease;
+    will-change: transform;
+    mix-blend-mode: multiply;
+    border: 0 solid var(--fucsia);
+  }
+
+  .puntatore.acceso {
+    opacity: 1;
+  }
+
+  /* sopra qualcosa di cliccabile: piu' grande e vuoto, cosi' si legge sotto */
+  .puntatore.largo {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border-width: 2px;
+    mix-blend-mode: normal;
+  }
+
+  .puntatore.premuto {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* sopra qualcosa che si può far partire o aprire: il pallino diventa
+     una pastiglia con dentro il nome dell'azione */
+  .parola {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bianco);
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    white-space: nowrap;
+  }
+
+  .puntatore.azione {
+    width: 76px;
+    height: 76px;
+    background: var(--fucsia);
+    border-width: 0;
+    mix-blend-mode: normal;
+    display: grid;
+    place-items: center;
+  }
+  .puntatore.azione .parola {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* su fondo scuro il multiply sparirebbe: li' torna pieno */
+  :global(.rullo) ~ * .puntatore,
+  .puntatore.chiaro {
+    mix-blend-mode: normal;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .puntatore {
+      display: none;
+    }
+  }
+</style>

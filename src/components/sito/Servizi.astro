@@ -22,7 +22,7 @@ const segni = [
     <header class="testata">
       <div>
         <p class="occhiello">{testi.servizi.occhiello}</p>
-        <h2>
+        <h2 data-rivela>
           <Fragment set:html={testi.servizi.titolo} /><span class="corsivo"
             >{testi.servizi.titoloCorsivo}</span
           >
@@ -31,10 +31,11 @@ const segni = [
       <p class="intro" data-scrivi>{testi.servizi.intro}</p>
     </header>
 
-    <ul class="griglia">
+    <ul class="righe">
       {
         testi.servizi.voci.map((s, i) => (
-          <li>
+          <li style={`--posto:${i}`} data-riga>
+            <span class="numero">{String(i + 1).padStart(2, '0')}</span>
             <svg class="segno" viewBox="0 0 24 24" aria-hidden="true">
               <path d={segni[i]} fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round" />
@@ -65,39 +66,67 @@ const segni = [
     margin: 0;
   }
 
-  .griglia {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-    gap: clamp(0.9rem, 1.6vw, 1.35rem);
+  .righe {
     margin: 0;
     padding: 0;
     list-style: none;
+    border-top: 1px solid rgba(11, 11, 11, 0.22);
   }
 
-  .griglia li {
+  .righe li {
     display: grid;
-    align-content: start;
-    gap: 0.7rem;
-    padding: clamp(1.4rem, 2.2vw, 1.9rem);
-    border: 1.4px solid rgba(11, 11, 11, 0.28);
-    border-radius: 12px;
-    transition: background 0.28s, border-color 0.28s, transform 0.28s;
+    grid-template-columns: auto auto minmax(0, 1.1fr) minmax(0, 1.4fr);
+    align-items: center;
+    gap: clamp(0.9rem, 3vw, 2.5rem);
+    padding-block: clamp(1.1rem, 2.4vw, 1.8rem);
+    border-bottom: 1px solid rgba(11, 11, 11, 0.22);
+    transition: background 0.3s, padding-inline 0.3s;
   }
 
-  .griglia li:hover {
-    background: var(--nero);
-    border-color: var(--nero);
-    color: var(--giallo-chiaro);
-    transform: translateY(-4px);
+  /* entrano una dopo l'altra, dal basso */
+  .righe li[data-riga] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--posto) * 0.09s),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--posto) * 0.09s),
+      background 0.3s;
+  }
+  .righe li[data-riga].entrata {
+    opacity: 1;
+    transform: none;
+  }
+  .no-js .righe li[data-riga] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .righe li:hover {
+    background: rgba(11, 11, 11, 0.055);
+    padding-inline: clamp(0.5rem, 1.4vw, 1.1rem);
   }
 
   .segno {
-    width: 30px;
-    height: 30px;
-    margin-bottom: 1.6rem;
+    width: clamp(20px, 2.2vw, 26px);
+    height: auto;
+    color: rgba(11, 11, 11, 0.55);
+    transition: color 0.3s, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .righe li:hover .segno {
+    color: var(--nero);
+    transform: rotate(90deg);
   }
 
-  .griglia p {
+  .numero {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: rgba(11, 11, 11, 0.45);
+    font-variant-numeric: tabular-nums;
+  }
+
+
+  .righe p {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.6;
@@ -111,3 +140,26 @@ const segni = [
     }
   }
 </style>
+
+<script>
+  const righe = document.querySelectorAll<HTMLElement>('.righe li[data-riga]');
+  if (righe.length) {
+    const lista = righe[0].parentElement!;
+    const fermo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (fermo) {
+      righe.forEach((r) => r.classList.add('entrata'));
+    } else {
+      // si osserva l'elenco, non ogni riga: cosi' partono in cascata
+      new IntersectionObserver(
+        (voci, osservatore) => {
+          for (const v of voci) {
+            if (!v.isIntersecting) continue;
+            osservatore.disconnect();
+            righe.forEach((r) => r.classList.add('entrata'));
+          }
+        },
+        { threshold: 0.15 }
+      ).observe(lista);
+    }
+  }
+</script>

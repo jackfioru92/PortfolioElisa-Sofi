@@ -13,7 +13,7 @@ const testi = t(lang);
     <header class="testata">
       <div>
         <p class="occhiello">{testi.reel.occhiello}</p>
-        <h2>{testi.reel.titolo}<span class="corsivo">{testi.reel.titoloCorsivo}</span></h2>
+        <h2 data-rivela>{testi.reel.titolo}<span class="corsivo">{testi.reel.titoloCorsivo}</span></h2>
       </div>
       <p class="intro">{testi.reel.intro(reel.length)}</p>
     </header>
@@ -23,7 +23,7 @@ const testi = t(lang);
     {
       reel.map((r) => (
         <li>
-          <button class="clip" data-video={r.video} aria-label={testi.reel.guarda(r.brand)}>
+          <button class="clip" data-punta={testi.reel.punta} data-video={r.video} aria-label={testi.reel.guarda(r.brand)}>
             <img src={r.poster} alt="" width="540" height="960" loading="lazy" decoding="async" />
             <span class="play" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="20" height="20">

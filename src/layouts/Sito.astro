@@ -4,6 +4,7 @@ import '@fontsource/bodoni-moda/latin-500-italic.css';
 import '../styles/sito.css';
 import { studio, percorso, type Lingua } from '../data/studio';
 import { t } from '../data/testi';
+import Puntatore from '../components/sito/Puntatore.astro';
 
 interface Props {
   lang: Lingua;
@@ -79,6 +80,7 @@ const jsonLd = {
   </head>
 
   <body>
+    <Puntatore />
     <slot />
 
     <script>
@@ -92,6 +94,112 @@ const jsonLd = {
        * leggibile da Google e dagli screen reader: a scriversi e' una copia
        * marcata `aria-hidden`. Cosi' l'effetto non toglie niente a nessuno.
        */
+
+      /**
+       * Titoli che si rivelano entrando in vista: il testo sale da sotto una
+       * riga invisibile, riga per riga. Serve spezzare il titolo in righe, e
+       * le righe le decide il browser: si misura dove va a capo davvero, con
+       * i Range, invece di indovinare dai tag.
+       */
+      const daRivelare = document.querySelectorAll<HTMLElement>('[data-rivela]');
+
+      if (daRivelare.length) {
+        const fermoTesto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        daRivelare.forEach((titolo) => {
+          if (fermoTesto) {
+            titolo.classList.add('rivelato');
+            return;
+          }
+
+          new IntersectionObserver(
+            (voci, osservatore) => {
+              for (const v of voci) {
+                if (!v.isIntersecting) continue;
+                osservatore.disconnect();
+                titolo.classList.add('rivelato');
+              }
+            },
+            { threshold: 0.25 }
+          ).observe(titolo);
+        });
+      }
+
+      /**
+       * I numeri salgono dal valore di partenza a quello d'arrivo.
+       * Il testo scritto nella pagina resta il valore finale: se il copione
+       * non parte, si legge comunque il numero giusto.
+       */
+      const daContare = document.querySelectorAll<HTMLElement>('[data-conta]');
+
+      if (daContare.length) {
+        const fermoNumeri = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /**
+         * "26,1k" vale 26100, "1.900" vale 1900: si legge sempre in unità
+         * vere, altrimenti un conteggio che parte da "1.000" e arriva a "14k"
+         * salirebbe da mille a quattordici.
+         */
+        const leggi = (testo: string) => {
+          const ripulito = testo.trim();
+          const k = /k$/i.test(ripulito);
+          const corpo = ripulito.replace(/k$/i, '').replace(/\./g, '').replace(',', '.');
+          const grezzo = parseFloat(corpo);
+          const valore = Number.isFinite(grezzo) ? grezzo : 0;
+          return {
+            valore: k ? valore * 1000 : valore,
+            k,
+            decimali: (corpo.split('.')[1] || '').length,
+          };
+        };
+
+        /** riscrive un valore nella forma del traguardo */
+        const scrivi = (n: number, come: { k: boolean; decimali: number }) => {
+          if (come.k) {
+            const migliaia = n / 1000;
+            // sotto il mille la "k" non ha senso: meglio il numero intero
+            if (migliaia < 1) return Math.round(n).toLocaleString('it-IT');
+            return migliaia.toFixed(come.decimali).replace('.', ',') + 'k';
+          }
+          // toLocaleString non mette sempre il punto sulle quattro cifre
+          return Math.round(n)
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        };
+
+        daContare.forEach((el) => {
+          const arrivo = leggi(el.textContent || '');
+          const partenza = leggi(el.dataset.conta || '0');
+          if (fermoNumeri || arrivo.valore === partenza.valore) return;
+
+          el.textContent = scrivi(partenza.valore, arrivo);
+
+          const DURATA = 1500;
+          let inizio = 0;
+
+          const salita = (ora: number) => {
+            if (!inizio) inizio = ora;
+            const quota = Math.min((ora - inizio) / DURATA, 1);
+            // parte svelto e rallenta alla fine
+            const morbida = 1 - Math.pow(1 - quota, 3);
+            const valore = partenza.valore + (arrivo.valore - partenza.valore) * morbida;
+            el.textContent = scrivi(valore, arrivo);
+            if (quota < 1) requestAnimationFrame(salita);
+          };
+
+          new IntersectionObserver(
+            (voci, osservatore) => {
+              for (const v of voci) {
+                if (!v.isIntersecting) continue;
+                osservatore.disconnect();
+                requestAnimationFrame(salita);
+              }
+            },
+            { threshold: 0.6 }
+          ).observe(el);
+        });
+      }
+
       const daScrivere = document.querySelectorAll<HTMLElement>('[data-scrivi]');
 
       if (daScrivere.length) {
@@ -150,6 +258,24 @@ const jsonLd = {
     </script>
 
     <style is:global>
+      /* i titoli entrano salendo da sotto una riga invisibile */
+      [data-rivela] {
+        opacity: 0;
+        transform: translateY(0.4em);
+        transition:
+          opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      [data-rivela].rivelato {
+        opacity: 1;
+        transform: none;
+      }
+      /* se il copione non parte, il titolo non puo' restare invisibile */
+      .no-js [data-rivela] {
+        opacity: 1;
+        transform: none;
+      }
+
       /* il testo vero: c'e', ma non si vede */
       .solo-lettori {
         position: absolute;

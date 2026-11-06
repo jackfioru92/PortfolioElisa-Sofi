@@ -13,7 +13,7 @@ const testi = t(lang);
     <header class="testata">
       <div>
         <p class="occhiello">{testi.numeri.occhiello}</p>
-        <h2>{testi.numeri.titolo}<span class="corsivo">{testi.numeri.titoloCorsivo}</span></h2>
+        <h2 data-rivela>{testi.numeri.titolo}<span class="corsivo">{testi.numeri.titoloCorsivo}</span></h2>
       </div>
       <div class="racconto">
         {testi.numeri.racconto.map((p) => <p>{p}</p>)}
@@ -31,7 +31,7 @@ const testi = t(lang);
                 <path d="M1 8h20M15 2l6 6-6 6" fill="none" stroke="currentColor"
                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <span class="a">{n.a}</span>
+              <span class="a" data-conta={n.da}>{n.a}</span>
             </p>
             <p class="periodo">{testi.numeri.follower} {testi.numeri.periodo(n.anni)}</p>
           </li>
