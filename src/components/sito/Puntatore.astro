@@ -2,9 +2,12 @@
 /**
  * Il pallino fucsia che segue il mouse, come nella versione mandata dal cliente.
  *
- * Il cursore vero del sistema resta visibile: nasconderlo fa perdere il segnale
- * che distingue un link da un testo, e su un sito che deve far scrivere la gente
- * non conviene. Il pallino si aggiunge, non sostituisce.
+ * Il pallino sostituisce la freccia del sistema, che viene nascosta. Lo fa solo
+ * quando il pallino e' davvero partito: se il copione non gira, la freccia resta
+ * dov'e', perche' una pagina senza puntatore non si usa.
+ *
+ * Nei campi da compilare la barretta di scrittura resta: li' non e' decorazione,
+ * serve a vedere dove si sta scrivendo.
  *
  * Non compare su telefoni e tablet (non c'è un puntatore da seguire) né per chi
  * ha chiesto meno movimento.
@@ -21,6 +24,8 @@
   const menoMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (palla && haPuntatore && !menoMovimento) {
+    // da qui in poi il pallino sostituisce la freccia
+    document.documentElement.classList.add('con-pallino');
     let mouseX = innerWidth / 2;
     let mouseY = innerHeight / 2;
     let x = mouseX;
@@ -73,8 +78,10 @@
 
     const passo = () => {
       // insegue con un filo di ritardo: e' quel ritardo a dargli peso
-      x += (mouseX - x) * 0.18;
-      y += (mouseY - y) * 0.18;
+      // insegue quasi subito: con la freccia nascosta, un pallino lento
+      // farebbe sbagliare i click
+      x += (mouseX - x) * 0.4;
+      y += (mouseY - y) * 0.4;
       palla.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
       if (!fermo) requestAnimationFrame(passo);
     };
@@ -87,6 +94,21 @@
     });
   }
 </script>
+
+<style is:global>
+  /* via la freccia: al suo posto c'e' il pallino */
+  html.con-pallino,
+  html.con-pallino * {
+    cursor: none;
+  }
+
+  /* dove si scrive, la barretta serve davvero */
+  html.con-pallino input,
+  html.con-pallino textarea,
+  html.con-pallino [contenteditable] {
+    cursor: text;
+  }
+</style>
 
 <style>
   .puntatore {
