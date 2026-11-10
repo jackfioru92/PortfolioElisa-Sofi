@@ -9,9 +9,9 @@ import type { Lingua } from './studio';
 
 const it = {
   meta: {
-    titolo: 'SE Creative — Studio creativo a Perugia',
+    titolo: 'Studio grafico a Perugia e in Umbria — SE Creative',
     descrizione:
-      'Sofia Ercolani ed Elisa Zetti: brand identity, packaging, social media strategy e video per aziende e brand in Umbria e non solo.',
+      'Studio grafico a Perugia di Sofia Ercolani ed Elisa Zetti: logo e brand identity, packaging, social media e video per aziende in Umbria. Guarda i progetti.',
   },
 
   nav: {
@@ -172,6 +172,9 @@ const it = {
       `Attraverso un approccio multidisciplinare e una rete di professionisti
        specializzati, accompagniamo aziende e brand nella creazione di esperienze
        capaci di generare valore, creare connessioni e lasciare il segno.`,
+      `Lavoriamo da Perugia con realtà di tutta l'Umbria — Corciano, Magione, Assisi,
+       Foligno, il Trasimeno e la provincia di Terni — e da qui seguiamo clienti nel
+       resto d'Italia: ristoranti, strutture ricettive, negozi e studi professionali.`,
     ],
     manifesto: 'Non seguiamo il cambiamento. Lo costruiamo.',
     didascalia: 'Creative visual & manipulation design',
@@ -362,7 +365,7 @@ export type Testi = typeof it;
 
 const en: Testi = {
   meta: {
-    titolo: 'SE Creative — Creative studio in Perugia, Italy',
+    titolo: 'Graphic design studio in Perugia, Italy — SE Creative',
     descrizione:
       'Sofia Ercolani and Elisa Zetti: brand identity, packaging, social media strategy and video for companies and brands in Umbria and beyond.',
   },

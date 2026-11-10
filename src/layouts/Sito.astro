@@ -45,6 +45,59 @@ const jsonLd = {
     { '@type': 'Person', name: 'Elisa Zetti' },
   ],
   sameAs: [`https://instagram.com/${studio.instagram}`],
+
+  /* Dove si lavora: senza questo, per i motori lo studio è un indirizzo a
+     Perugia e basta, e le ricerche fatte dal resto della regione non lo
+     incrociano. */
+  areaServed: [
+    { '@type': 'AdministrativeArea', name: 'Umbria' },
+    { '@type': 'AdministrativeArea', name: 'Provincia di Perugia' },
+    { '@type': 'AdministrativeArea', name: 'Provincia di Terni' },
+    { '@type': 'City', name: 'Perugia' },
+    { '@type': 'City', name: 'Corciano' },
+    { '@type': 'City', name: 'Magione' },
+    { '@type': 'City', name: 'Assisi' },
+    { '@type': 'City', name: 'Foligno' },
+    { '@type': 'City', name: 'Terni' },
+    { '@type': 'Country', name: 'Italia' },
+  ],
+
+  /* Il centro della zona servita, con il raggio: è quello che i motori usano
+     per decidere se mostrare lo studio a chi cerca «qui vicino». */
+  serviceArea: {
+    '@type': 'GeoCircle',
+    geoMidpoint: { '@type': 'GeoCoordinates', latitude: 43.1107, longitude: 12.3908 },
+    geoRadius: 70000,
+  },
+
+  knowsLanguage: ['it', 'en'],
+
+  /* L'elenco dei servizi, nelle parole con cui la gente li cerca */
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: lang === 'it' ? 'Servizi' : 'Services',
+    itemListElement: (lang === 'it'
+      ? [
+          'Logo e brand identity',
+          'Packaging e stampa',
+          'Social media strategy e gestione profili',
+          'Creative visual e fotomanipolazione',
+          'Video e reel per i social',
+          'Siti web e applicazioni',
+        ]
+      : [
+          'Logo and brand identity',
+          'Packaging and print',
+          'Social media strategy and account management',
+          'Creative visual and photo manipulation',
+          'Video and reels for social media',
+          'Websites and apps',
+        ]
+    ).map((nome) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name: nome },
+    })),
+  },
 };
 ---
 
