@@ -32,8 +32,17 @@ npm run build
 
 echo "▸ Pacchetto"
 TGZ="$(mktemp -t secreative).tgz"
-# --no-xattrs evita i file ._* dei metadati macOS
-tar --no-xattrs -czf "$TGZ" -C dist .
+# Su macOS tar affianca a ogni file un gemello «._nome» con i metadati.
+# --no-xattrs da solo non basta: serve anche COPYFILE_DISABLE, altrimenti
+# quei gemelli finiscono sul server e vengono serviti come pagine vere.
+COPYFILE_DISABLE=1 tar --no-xattrs --exclude '._*' --exclude '.DS_Store' \
+  -czf "$TGZ" -C dist .
+
+# controllo: se qualcuno si è intrufolato lo stesso, meglio saperlo adesso
+if tar tzf "$TGZ" | grep -q '/\._'; then
+  echo "✗ nel pacchetto ci sono file di metadati macOS, mi fermo" >&2
+  exit 1
+fi
 
 echo "▸ Invio al server"
 scp "$TGZ" "$HOST:/tmp/secreative-dist.tgz"
